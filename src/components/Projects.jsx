@@ -16,15 +16,20 @@ function Projects() {
         initial={{ x: -100, opacity: 0 }}
         whileInView={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-wrap lg:flex-nowrap gap-4"
+        className="flex flex-wrap items-center justify-center lg:flex-nowrap gap-5"
       >
         <Project
           title="Compiler"
           toolslist="Java JFlex CUP"
           github="https://github.com/Afdal-B/Compilation"
         />
-        <Project title="Chat App" toolslist="NodeJs React" />
-        <Project title="Whatsapp clone" toolslist="NodeJs Javascript" />
+
+        <Project
+          title="Responsive Disney+ clone"
+          toolslist="React tailwindCSS TMDB-API"
+          github="https://github.com/Afdal-B/Disney-Clone"
+          link="https://disney-clone-delta-lilac.vercel.app"
+        />
       </motion.div>
     </div>
   );
