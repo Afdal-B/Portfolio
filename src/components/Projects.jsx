@@ -26,7 +26,7 @@ function Projects() {
 
         <Project
           title="Responsive Disney+ clone"
-          toolslist="React tailwindCSS TMDB-API"
+          toolslist="React tailwindCSS TMDB"
           github="https://github.com/Afdal-B/Disney-Clone"
           link="https://disney-clone-delta-lilac.vercel.app"
         />
