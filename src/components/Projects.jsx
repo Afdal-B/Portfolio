@@ -30,6 +30,12 @@ function Projects() {
           github="https://github.com/Afdal-B/Disney-Clone"
           link="https://disney-clone-delta-lilac.vercel.app"
         />
+        <Project
+          title="fullstack book store"
+          toolslist="MongoDB Express React Node.js"
+          github="https://github.com/Afdal-B/Book-store-client"
+          link="https://bookstore-6076.onrender.com"
+        />
       </motion.div>
     </div>
   );
