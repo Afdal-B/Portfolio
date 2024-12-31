@@ -11,11 +11,11 @@ function Project(props) {
   return (
     <div className="w-full lg:w-1/3 rounded-2xl border-4 border-neutral-800 p-4 flex flex-col">
       <div className="flex gap-4 flex-row-reverse p-1">
-        <a href={props.github}>
+        <a href={props.github} target="_blank">
           <FaGithub />
         </a>
         {props.link && (
-          <a href={props.link}>
+          <a href={props.link} target="_blank">
             <FaLink />
           </a>
         )}

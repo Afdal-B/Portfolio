@@ -16,7 +16,7 @@ function Projects() {
         initial={{ x: -100, opacity: 0 }}
         whileInView={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-wrap items-center justify-center lg:flex-nowrap gap-5"
+        className="flex flex-wrap items-center justify-center gap-5"
       >
         <Project
           title="Compiler"
@@ -31,10 +31,15 @@ function Projects() {
           link="https://disney-clone-delta-lilac.vercel.app"
         />
         <Project
-          title="fullstack book store"
+          title="Fullstack book store"
           toolslist="MongoDB Express React Node.js"
           github="https://github.com/Afdal-B/Book-store-client"
           link="https://bookstore-6076.onrender.com"
+        />
+        <Project
+          title="Anime recommendation system"
+          toolslist="FastAPI React Azure PySpark"
+          github="https://github.com/Afdal-B/anime-recommendations"
         />
       </motion.div>
     </div>

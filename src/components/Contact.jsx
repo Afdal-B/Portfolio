@@ -31,7 +31,7 @@ function Contact() {
           <form
             action="https://api.web3forms.com/submit"
             method="POST"
-            className="flex flex-col w-full lg:w-3/4  space-y-4"
+            className="flex flex-col w-full lg:w-3/4 space-y-4"
           >
             <input
               type="hidden"
@@ -45,7 +45,7 @@ function Contact() {
               id="name"
               required
               placeholder="Name"
-              className="p-4 border border-gray-300 rounded-3xl bg-black"
+              className="p-4 border border-neutral-800 rounded-3xl bg-black focus:outline-none focus:border-[#E5E4E2]"
             />
 
             <input
@@ -54,7 +54,7 @@ function Contact() {
               id="email"
               required
               placeholder="Email"
-              className="p-4 border border-gray-300 rounded-3xl bg-black"
+              className="p-4 border border-neutral-800 rounded-3xl bg-black focus:outline-none focus:border-[#E5E4E2]"
             />
 
             <textarea
@@ -63,7 +63,7 @@ function Contact() {
               cols="40"
               rows="8"
               placeholder="Message"
-              className="p-4 border border-gray-300 rounded-3xl bg-black"
+              className="p-4 border border-neutral-800 rounded-3xl bg-black focus:outline-none focus:border-[#E5E4E2]"
             ></textarea>
             <button className="px-4 py-2 bg-green-800 text-white rounded-3xl">
               Submit

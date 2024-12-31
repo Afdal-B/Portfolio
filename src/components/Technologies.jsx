@@ -1,9 +1,9 @@
 import React from "react";
 import { RiReactjsLine } from "react-icons/ri";
-import { BiLogoPostgresql } from "react-icons/bi";
-import { SiPhp } from "react-icons/si";
 import { motion } from "framer-motion";
 import { RiTailwindCssFill } from "react-icons/ri";
+import { SiMongodb } from "react-icons/si";
+import { SiFastapi } from "react-icons/si";
 const iconVariants = (duration) => ({
   initial: { y: -10 },
   animate: {
@@ -55,7 +55,7 @@ function Technologies() {
           animate="animate"
           className="rounded-2xl border-4 border-neutral-800 p-4"
         >
-          <BiLogoPostgresql className="text-7xl text-blue-400" />
+          <SiFastapi className="text-7xl text-green-700" />
         </motion.div>
         <motion.div
           variants={iconVariants(3.5)}
@@ -63,7 +63,7 @@ function Technologies() {
           animate="animate"
           className="rounded-2xl border-4 border-neutral-800 p-4"
         >
-          <SiPhp className="text-7xl text-blue-400" />
+          <SiMongodb className="text-7xl text-green-900" />
         </motion.div>
       </motion.div>
     </div>

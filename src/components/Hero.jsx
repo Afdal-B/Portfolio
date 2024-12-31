@@ -1,59 +1,40 @@
-import { HERO_CONTENT } from "../constants";
-import profile_pic from "../assets/profile_pic.jpeg";
-import { motion } from "framer-motion";
-
-const container = (delay) => ({
-  hidden: { x: -100, opacity: 0 },
-  visible: {
-    x: 0,
-    opacity: 1,
-    transition: { duration: 0.5, delay: delay },
-  },
-});
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const Hero = () => {
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 100], [1, 0]);
+  const translateY = useTransform(scrollY, [0, 100], [0, -20]);
+
   return (
-    <div className="border-b border-neutral-900 pb-4 lg:mb-35">
-      <div className="flex flex-wrap">
-        <div className="w-full lg:w-1/2">
-          <div className="flex flex-col items-center lg:items-start">
-            <motion.h1
-              variants={container(0)}
-              initial="hidden"
-              animate="visible"
-              className="pb-16 text-6xl font-thin tracking-tight lg:mt-16 lg:text-7xl"
-            >
-              Afdal Bouraima
-            </motion.h1>
-            <motion.span
-              variants={container(0.5)}
-              initial="hidden"
-              animate="visible"
-              className="bg-gradient-to-r from-pink-300 via-slate-500 to-purple-500 bg-clip-text text-4xl tracking-tight text-transparent"
-            >
-              Software Engineer Student
-            </motion.span>
-            <motion.p
-              variants={container(1)}
-              initial="hidden"
-              animate="visible"
-              className="mt-6"
-            >
-              {HERO_CONTENT}
-            </motion.p>
-          </div>
-        </div>
-        <div className="w-full lg:w-1/2 lg:p-8 flex justify-center">
-          <motion.img
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 1.2 }}
-            src={profile_pic}
-            alt="Afdal"
-          />
+    <section className="relative min-h-screen flex items-start justify-center overflow-hidden text-white pt-40 border-b border-neutral-800 pb-24">
+      <div className="container mx-auto px-4 z-10 text-center">
+        <div className="max-w-4xl mx-auto">
+          <motion.h1
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-4xl md:text-7xl font-light mb-6 tracking-wider cinzel-decorative-regular"
+          >
+            Afdal Bouraima
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-xl md:text-2xl text-gray-400 mb-8 tracking-wide font-serif"
+          >
+            Software engineer
+          </motion.p>
         </div>
       </div>
-    </div>
+
+      <motion.div
+        className="text-center absolute bottom-[10.5rem] -translate-x-[50%] text-sm text-gray-500"
+        style={{ opacity, translateY }}
+      >
+        Scroll to discover
+      </motion.div>
+    </section>
   );
 };
 
