@@ -6,8 +6,9 @@ scripted keyword router). The service decides when each runs:
 
 - no primary generator at all          -> fallback
 - retrieval too weak to be useful      -> generic "I answer from X" copy
-- primary generator raises             -> fallback, so a flaky LLM never
-                                          turns into a failed request
+- retrieval or primary generator raise -> fallback, so a flaky LLM or
+                                          embedding API (quota, outage)
+                                          never turns into a failed request
 """
 
 import logging
@@ -40,7 +41,11 @@ class ChatService:
         if self._primary is None or self._retriever is None:
             return self._run(self._fallback, message, lang, [])
 
-        hits = self._retriever.search(message, lang, self._top_k)
+        try:
+            hits = self._retriever.search(message, lang, self._top_k)
+        except Exception:
+            logger.exception("Retrieval failed, falling back to the scripted generator")
+            return self._run(self._fallback, message, lang, [])
         if not hits or hits[0].score < self._min_score:
             # Not worth an LLM call: nothing relevant enough was retrieved.
             return self._generic_fallback(lang)

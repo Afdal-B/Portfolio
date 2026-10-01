@@ -48,6 +48,10 @@ Pipeline de bout en bout, sans framework d'orchestration :
    d'ensemble qui les nomme tous.
 3. **Embeddings** : API Gemini (`gemini-embedding-001`, 768 dimensions), avec
    des types de tâche distincts pour les passages et pour les questions.
+   Les vecteurs des passages sont pré-calculés dans
+   [`content/embeddings.json`](backend/content/embeddings.json) (`make embeddings`
+   après chaque modification du contenu) : une instance qui démarre indexe le
+   corpus sans appeler l'API, seule la question du visiteur est vectorisée.
 4. **Index** : ChromaDB, une collection par langue, construit au démarrage
    (ou à la première question sur Vercel) et mis à jour quand le catalogue
    change.
@@ -85,8 +89,9 @@ Tout le site est déployé sur **Vercel**, dans un seul projet, grâce aux
 Chaque push sur `main` redéploie les deux. La seule variable d'environnement
 à définir dans le projet Vercel est `PORTFOLIO_GEMINI_API_KEY`. Le disque des
 fonctions est en lecture seule, sauf `/tmp` où l'index ChromaDB est
-reconstruit à chaque démarrage d'instance. Pour modifier les projets, on édite
-le catalogue en local, puis on pousse.
+reconstruit à chaque démarrage d'instance à partir des vecteurs pré-calculés.
+Pour modifier le contenu (documents ou projets) : on édite en local, on lance
+`make embeddings`, puis on pousse. Un test échoue si on oublie cette étape.
 
 Pour un hébergement Docker classique, [`backend/Dockerfile`](backend/Dockerfile)
 construit l'image du backend : un volume monté sur `/app/storage` y conserve

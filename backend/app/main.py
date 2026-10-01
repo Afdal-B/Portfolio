@@ -2,6 +2,8 @@
 concerns (CORS, routers, static files) onto the services built by the
 composition root in app/container.py."""
 
+import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -12,16 +14,24 @@ from app.adapters.inbound.http import routes_admin, routes_chat, routes_content
 from app.adapters.outbound.persistence.filesystem_image_store import DEFAULT_UPLOAD_DIR, URL_PREFIX
 from app.container import container
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     retriever = container.retriever
-    if retriever is not None:
-        # Indexes the documents and the project catalog now, so the first
-        # visitor doesn't wait for it. Where the host skips this hook
-        # (serverless), building the chat service does it on first use.
-        retriever.warm_up(("fr", "en"))
-        container.chat_service
+    # On a long-running server, index now so the first question is fast. On
+    # Vercel, every instance would pay for it, including those that only
+    # serve page content: the chat service indexes on first use instead.
+    if retriever is not None and not os.environ.get("VERCEL"):
+        try:
+            retriever.warm_up(("fr", "en"))
+            container.chat_service
+        except Exception:
+            # The page content doesn't need the index: a failure here must
+            # not take the whole API down. The chat falls back to scripted
+            # answers until indexing succeeds.
+            logger.exception("Warm-up of the retrieval index failed")
     yield
 
 

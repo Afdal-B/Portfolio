@@ -23,8 +23,11 @@ from app.adapters.outbound.persistence.static_content_repository import (
 )
 from app.adapters.outbound.rag.chroma_retriever import DEFAULT_CHROMA_PATH, ChromaRetriever
 from app.adapters.outbound.rag.embedder import GeminiEmbedder
+from app.adapters.outbound.rag.embedding_cache import CachedEmbedder
 from app.adapters.outbound.rag.markdown_knowledge_repository import MarkdownKnowledgeRepository
 from app.config import Settings, settings as default_settings
+from app.domain.models import Chunk
+from app.domain.project_chunking import LANGS, overview_chunk, project_chunk
 from app.domain.ports import AnswerGenerator, Retriever
 from app.domain.services.chat_service import ChatService
 from app.domain.services.content_service import ContentService
@@ -61,8 +64,12 @@ class Container:
             return None
         return ChromaRetriever(
             knowledge=MarkdownKnowledgeRepository(),
-            embedder=GeminiEmbedder(
-                self.settings.gemini_api_key,
+            embedder=CachedEmbedder(
+                GeminiEmbedder(
+                    self.settings.gemini_api_key,
+                    self.settings.embedding_model,
+                    self.settings.embedding_dimensions,
+                ),
                 self.settings.embedding_model,
                 self.settings.embedding_dimensions,
             ),
@@ -86,6 +93,19 @@ class Container:
     @cached_property
     def scripted_generator(self) -> AnswerGenerator:
         return ScriptedAnswerGenerator(self.qa_repository, self.copy_repository)
+
+    def indexed_chunks(self) -> list[Chunk]:
+        """Every passage the vector store holds, in both languages: the
+        knowledge documents and the project catalog. What the embedding
+        cache must cover."""
+        projects = self.project_repository.list_all()
+        chunks: list[Chunk] = []
+        for lang in LANGS:
+            chunks.extend(MarkdownKnowledgeRepository().chunks(lang))
+            chunks.extend(project_chunk(project, lang) for project in projects)
+            if projects:
+                chunks.append(overview_chunk(projects, lang))
+        return chunks
 
     # --- domain services -------------------------------------------------
 

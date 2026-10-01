@@ -1,4 +1,4 @@
-.PHONY: install install-frontend install-backend dev-frontend dev-backend test test-frontend test-backend
+.PHONY: install install-frontend install-backend dev-frontend dev-backend embeddings test test-frontend test-backend
 
 install: install-frontend install-backend
 
@@ -15,6 +15,11 @@ dev-backend:
 	cd backend && poetry run uvicorn app.main:app --reload --port 8000
 
 # Run in two terminals: `make dev-backend` and `make dev-frontend`.
+
+# After editing backend/content/afdal.*.md or the project catalog: recompute
+# the passages' embeddings, then commit backend/content/embeddings.json.
+embeddings:
+	cd backend && poetry run python scripts/build_embeddings.py
 
 test: test-backend test-frontend
 

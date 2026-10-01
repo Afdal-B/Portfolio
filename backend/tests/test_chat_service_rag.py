@@ -14,11 +14,14 @@ def chunk(id_: str, label: str, category: str = "projects") -> Chunk:
 
 
 class FakeRetriever:
-    def __init__(self, hits: Sequence[RetrievedChunk]) -> None:
+    def __init__(self, hits: Sequence[RetrievedChunk], error: Exception = None) -> None:
         self._hits = list(hits)
+        self._error = error
         self.indexed: list[tuple] = []
 
     def search(self, query, lang, top_k):
+        if self._error:
+            raise self._error
         return self._hits[:top_k]
 
     def index(self, lang, chunks, source):
@@ -122,3 +125,15 @@ def test_confidence_is_the_top_score_as_a_percentage(score, expected) -> None:
     answer = build(primary=primary, retriever=FakeRetriever(hits), min_score=-1).ask("q", "fr")
 
     assert answer.confidence == expected
+
+
+def test_retrieval_failure_falls_back_to_the_scripted_one() -> None:
+    # e.g. the embedding API answering 429 (quota) for the question.
+    primary = FakeGenerator("rag", GeneratedAnswer(text="jamais appelé", intent="profile"))
+    retriever = FakeRetriever([], error=RuntimeError("429 RESOURCE_EXHAUSTED"))
+
+    answer = build(primary=primary, retriever=retriever).ask("voir les projets", "fr")
+
+    assert primary.calls == 0
+    assert answer.engine == "scripted"
+    assert answer.text == "scripté"
