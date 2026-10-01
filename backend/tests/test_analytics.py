@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from app.adapters.outbound.analytics.memory_store import InMemoryAnalyticsStore
 from app.adapters.outbound.analytics.upstash_store import UpstashAnalyticsStore
+from app.adapters.outbound.upstash import UpstashClient
 from app.domain.models import QuestionEvent, VisitEvent
 from app.domain.services.analytics_service import AnalyticsService
 from app.main import app
@@ -94,9 +95,8 @@ def test_a_failing_store_never_breaks_the_request() -> None:
 
 
 def upstash(handler) -> UpstashAnalyticsStore:
-    return UpstashAnalyticsStore(
-        "https://example.upstash.io", "token", client=httpx.Client(transport=httpx.MockTransport(handler))
-    )
+    http = httpx.Client(transport=httpx.MockTransport(handler))
+    return UpstashAnalyticsStore(UpstashClient("https://example.upstash.io", "token", http=http))
 
 
 def test_upstash_visit_is_one_pipeline_with_expiring_keys() -> None:

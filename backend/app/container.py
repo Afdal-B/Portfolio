@@ -17,6 +17,8 @@ from app.adapters.outbound.llm.gemini_answer_generator import GeminiAnswerGenera
 from app.adapters.outbound.llm.scripted_answer_generator import ScriptedAnswerGenerator
 from app.adapters.outbound.persistence.filesystem_image_store import FilesystemImageStore
 from app.adapters.outbound.persistence.json_project_repository import JsonProjectRepository
+from app.adapters.outbound.persistence.upstash_image_store import UpstashImageStore
+from app.adapters.outbound.persistence.upstash_project_repository import UpstashProjectRepository
 from app.adapters.outbound.persistence.static_content_repository import (
     StaticContactRepository,
     StaticCopyRepository,
@@ -28,10 +30,12 @@ from app.adapters.outbound.rag.chroma_retriever import DEFAULT_CHROMA_PATH, Chro
 from app.adapters.outbound.rag.embedder import GeminiEmbedder
 from app.adapters.outbound.rag.embedding_cache import CachedEmbedder
 from app.adapters.outbound.rag.markdown_knowledge_repository import MarkdownKnowledgeRepository
+from app.adapters.outbound.rag.upstash_vector_cache import UpstashVectorCache
+from app.adapters.outbound.upstash import UpstashClient
 from app.config import Settings, settings as default_settings
 from app.domain.models import Chunk
 from app.domain.project_chunking import LANGS, overview_chunk, project_chunk
-from app.domain.ports import AnalyticsStore, AnswerGenerator, Retriever
+from app.domain.ports import AnalyticsStore, AnswerGenerator, ImageStore, ProjectRepository, Retriever
 from app.domain.services.analytics_service import AnalyticsService
 from app.domain.services.chat_service import ChatService
 from app.domain.services.content_service import ContentService
@@ -45,12 +49,24 @@ class Container:
     # --- outbound adapters ---------------------------------------------
 
     @cached_property
-    def project_repository(self) -> JsonProjectRepository:
-        return JsonProjectRepository()
+    def upstash(self) -> Optional[UpstashClient]:
+        """Shared state (catalog, images, statistics, online embeddings) lives
+        in Upstash when it's configured, on disk otherwise."""
+        url, token = self.settings.upstash_redis_rest_url, self.settings.upstash_redis_rest_token
+        return UpstashClient(url, token) if url and token else None
 
     @cached_property
-    def image_store(self) -> FilesystemImageStore:
-        return FilesystemImageStore()
+    def project_repository(self) -> ProjectRepository:
+        shipped = JsonProjectRepository()
+        if self.upstash is None:
+            return shipped
+        return UpstashProjectRepository(self.upstash, seed=shipped)
+
+    @cached_property
+    def image_store(self) -> ImageStore:
+        if self.upstash is None:
+            return FilesystemImageStore()
+        return UpstashImageStore(self.upstash)
 
     @cached_property
     def qa_repository(self) -> StaticQARepository:
@@ -76,6 +92,7 @@ class Container:
                 ),
                 self.settings.embedding_model,
                 self.settings.embedding_dimensions,
+                shared=UpstashVectorCache(self.upstash) if self.upstash else None,
             ),
             chroma_path=self._chroma_path(),
         )
@@ -100,16 +117,15 @@ class Container:
 
     @cached_property
     def analytics_store(self) -> AnalyticsStore:
-        url, token = self.settings.upstash_redis_rest_url, self.settings.upstash_redis_rest_token
-        if url and token:
-            return UpstashAnalyticsStore(url, token)
-        return InMemoryAnalyticsStore()
+        if self.upstash is None:
+            return InMemoryAnalyticsStore()
+        return UpstashAnalyticsStore(self.upstash)
 
     @property
     def projects_editable(self) -> bool:
-        """The catalog can be edited where its files can be written: not on
-        Vercel, whose functions have a read-only filesystem."""
-        return not os.environ.get("VERCEL")
+        """The catalog can be edited where it can be stored: in Upstash, or
+        on disk anywhere but Vercel, whose filesystem is read-only."""
+        return self.upstash is not None or not os.environ.get("VERCEL")
 
     def indexed_chunks(self) -> list[Chunk]:
         """Every passage the vector store holds, in both languages: the

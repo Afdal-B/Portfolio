@@ -1,5 +1,5 @@
 """FastAPI entrypoint — an inbound adapter, nothing more: it wires HTTP
-concerns (CORS, routers, static files) onto the services built by the
+concerns (CORS, routers) onto the services built by the
 composition root in app/container.py."""
 
 import logging
@@ -8,10 +8,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
-from app.adapters.inbound.http import routes_admin, routes_analytics, routes_chat, routes_content
-from app.adapters.outbound.persistence.filesystem_image_store import DEFAULT_UPLOAD_DIR, URL_PREFIX
+from app.adapters.inbound.http import routes_admin, routes_analytics, routes_chat, routes_content, routes_uploads
 from app.container import container
 
 logger = logging.getLogger(__name__)
@@ -48,13 +46,7 @@ app.include_router(routes_chat.router, prefix="/api")
 app.include_router(routes_content.router, prefix="/api")
 app.include_router(routes_admin.router, prefix="/api")
 app.include_router(routes_analytics.router, prefix="/api")
-
-# Images uploaded through the admin UI, served read-only. Created only when
-# missing: on a read-only filesystem (serverless), it ships with the code.
-if not DEFAULT_UPLOAD_DIR.exists():
-    DEFAULT_UPLOAD_DIR.mkdir(parents=True)
-app.mount(URL_PREFIX, StaticFiles(directory=DEFAULT_UPLOAD_DIR), name="uploads")
-
+app.include_router(routes_uploads.router, prefix="/api")
 
 @app.get("/health")
 def health() -> dict[str, str]:

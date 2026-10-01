@@ -104,7 +104,7 @@ export function ImageUploader({
           />
         </div>
         <p style={{ fontSize: 11.5, color: "var(--ink-3)", margin: "6px 0 0" }}>
-          JPEG, PNG ou WebP · 5 Mo max. Les images sont automatiquement redimensionnées (1600 px max) et
+          JPEG, PNG ou WebP · 4 Mo max. Les images sont automatiquement redimensionnées (1600 px max) et
           converties en WebP. Sans image, un placeholder est affiché.
         </p>
       </div>

@@ -10,9 +10,8 @@ import json
 from collections import Counter
 from typing import Any, Sequence
 
-import httpx
-
 from app.adapters.outbound.analytics.memory_store import city_label
+from app.adapters.outbound.upstash import UpstashClient
 from app.domain.models import AnalyticsReport, DailyStats, QuestionEvent, VisitEvent
 
 COUNTERS_TTL = 400 * 24 * 3600
@@ -24,10 +23,8 @@ PREFIX = "pf"
 class UpstashAnalyticsStore:
     persistent = True
 
-    def __init__(self, url: str, token: str, client: httpx.Client | None = None) -> None:
-        self._url = url.rstrip("/")
-        self._token = token
-        self._client = client or httpx.Client(timeout=3.0)
+    def __init__(self, client: UpstashClient) -> None:
+        self._client = client
 
     def record_visit(self, event: VisitEvent) -> None:
         day = event.day
@@ -107,18 +104,7 @@ class UpstashAnalyticsStore:
         )
 
     def _pipeline(self, commands: list[list[Any]]) -> list[Any]:
-        response = self._client.post(
-            f"{self._url}/pipeline",
-            headers={"Authorization": f"Bearer {self._token}"},
-            json=[[str(part) for part in command] for command in commands],
-        )
-        response.raise_for_status()
-        results = []
-        for item in response.json():
-            if "error" in item:
-                raise RuntimeError(f"Upstash error: {item['error']}")
-            results.append(item.get("result"))
-        return results
+        return self._client.pipeline(commands)
 
 
 def _hash(flat: list[str] | None) -> dict[str, int]:

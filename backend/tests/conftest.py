@@ -15,6 +15,7 @@ CACHED = (
     "content_service",
     "project_service",
     "analytics_store",
+    "upstash",
     "analytics_service",
 )
 

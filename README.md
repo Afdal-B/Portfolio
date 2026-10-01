@@ -97,11 +97,22 @@ Tout le site est déployé sur **Vercel**, dans un seul projet, grâce aux
 
 Chaque push sur `main` redéploie les deux. Variables d'environnement du projet
 Vercel : `PORTFOLIO_GEMINI_API_KEY`, et celles d'Upstash Redis, ajoutées par
-son intégration Vercel. Le disque des
-fonctions est en lecture seule, sauf `/tmp` où l'index ChromaDB est
-reconstruit à chaque démarrage d'instance à partir des vecteurs pré-calculés.
-Pour modifier le contenu (documents ou projets) : on édite en local, on lance
-`make embeddings`, puis on pousse. Un test échoue si on oublie cette étape.
+son intégration Vercel.
+
+Le disque des fonctions est en lecture seule, sauf `/tmp` où l'index ChromaDB
+est reconstruit à chaque démarrage d'instance. L'état partagé vit donc dans
+Upstash Redis :
+
+- le catalogue de projets et ses images (`storage/projects.json` et
+  `storage/uploads/` n'en sont que la version initiale) ;
+- les vecteurs des passages calculés après le déploiement, pour qu'un passage
+  ne soit vectorisé qu'une fois, toutes instances confondues ;
+- les statistiques d'audience.
+
+Avant chaque question, une instance vérifie que son index correspond au
+catalogue actuel et le met à jour sinon. Après une modification des documents
+`content/afdal.*.md`, on lance `make embeddings` avant de pousser ; un test
+échoue si on l'oublie.
 
 Pour un hébergement Docker classique, [`backend/Dockerfile`](backend/Dockerfile)
 construit l'image du backend : un volume monté sur `/app/storage` y conserve

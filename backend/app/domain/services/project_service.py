@@ -1,6 +1,7 @@
 """Project use cases: read the catalog, and replace it while keeping the
 retrieval index in step."""
 
+import hashlib
 import logging
 from typing import Optional, Sequence
 
@@ -28,6 +29,7 @@ class ProjectService:
         self._repository = repository
         self._image_store = image_store
         self._retriever = retriever
+        self._indexed_fingerprint: Optional[str] = None
 
     def list_all(self) -> list[Project]:
         return self._repository.list_all()
@@ -40,6 +42,9 @@ class ProjectService:
     def store_image(self, content: bytes) -> str:
         return self._image_store.save(content)
 
+    def load_image(self, name: str) -> Optional[bytes]:
+        return self._image_store.load(name)
+
     def sync_index(self) -> None:
         """Indexes the catalog as it currently stands on disk.
 
@@ -47,6 +52,15 @@ class ProjectService:
         fresh vector store the chatbot would otherwise know nothing about the
         projects until someone happened to save the catalog in the admin."""
         self._reindex(self.list_all())
+
+    def sync_if_changed(self) -> None:
+        """Reindexes when the catalog changed since this instance indexed it.
+
+        With several instances (serverless), a save reaches only the one that
+        handled it; the others notice here, before answering a question."""
+        projects = self.list_all()
+        if _fingerprint(projects) != self._indexed_fingerprint:
+            self._reindex(projects)
 
     def _reindex(self, projects: Sequence[Project]) -> None:
         """Best-effort: the catalog is already persisted, so a retrieval
@@ -63,5 +77,11 @@ class ProjectService:
                     chunks = [project_chunk(project, lang) for project in projects]
                     chunks.append(overview_chunk(projects, lang))
                     self._retriever.index(lang, chunks, PROJECT_SOURCE)
+            self._indexed_fingerprint = _fingerprint(projects)
         except Exception:
             logger.exception("Projects saved, but syncing them to the retrieval index failed")
+
+
+def _fingerprint(projects: Sequence[Project]) -> str:
+    return hashlib.sha256(repr(list(projects)).encode("utf-8")).hexdigest()
+

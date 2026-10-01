@@ -11,6 +11,7 @@ filename is never used, so it can't drive a path traversal or smuggle an
 executable extension."""
 
 import io
+import re
 import uuid
 from pathlib import Path
 
@@ -21,7 +22,9 @@ from app.domain.errors import ImageRejected
 DEFAULT_UPLOAD_DIR = Path(__file__).resolve().parents[4] / "storage" / "uploads"
 URL_PREFIX = "/api/uploads"
 
-MAX_BYTES = 5 * 1024 * 1024
+# Under Vercel's 4.5 MB request body limit, so an upload is refused with a
+# clear message rather than cut off by the platform.
+MAX_BYTES = 4 * 1024 * 1024
 # Largest the design ever displays an image is the ~720px modal, so 1600px
 # still covers high-DPI screens with room to spare.
 MAX_DIMENSION = 1600
@@ -36,26 +39,47 @@ Image.MAX_IMAGE_PIXELS = 50_000_000
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 
+# The only names the store ever generates. Anything else is refused before
+# touching the disk, so a crafted name can't escape the upload directory.
+IMAGE_NAME = re.compile(r"^[0-9a-f]{32}\.webp$")
+
+
 class FilesystemImageStore:
     def __init__(self, upload_dir: Path = DEFAULT_UPLOAD_DIR, max_bytes: int = MAX_BYTES) -> None:
         self._upload_dir = upload_dir
         self._max_bytes = max_bytes
 
     def save(self, content: bytes) -> str:
-        if not content:
-            raise ImageRejected("Fichier vide.")
-        if len(content) > self._max_bytes:
-            raise ImageRejected(
-                f"Image trop lourde ({len(content) // 1024} Ko). "
-                f"Maximum : {self._max_bytes // 1024 // 1024} Mo."
-            )
-
-        optimized = _to_webp(content)
-
+        optimized = prepare_image(content, self._max_bytes)
         self._upload_dir.mkdir(parents=True, exist_ok=True)
-        name = f"{uuid.uuid4().hex}.webp"
+        name = new_image_name()
         (self._upload_dir / name).write_bytes(optimized)
         return f"{URL_PREFIX}/{name}"
+
+    def load(self, name: str) -> bytes | None:
+        return read_image_file(self._upload_dir, name)
+
+
+def new_image_name() -> str:
+    return f"{uuid.uuid4().hex}.webp"
+
+
+def read_image_file(directory: Path, name: str) -> bytes | None:
+    if not IMAGE_NAME.match(name):
+        return None
+    path = directory / name
+    return path.read_bytes() if path.is_file() else None
+
+
+def prepare_image(content: bytes, max_bytes: int = MAX_BYTES) -> bytes:
+    """Validates an upload and returns it as an optimized WebP."""
+    if not content:
+        raise ImageRejected("Fichier vide.")
+    if len(content) > max_bytes:
+        raise ImageRejected(
+            f"Image trop lourde ({len(content) // 1024} Ko). Maximum : {max_bytes // 1024 // 1024} Mo."
+        )
+    return _to_webp(content)
 
 
 def _to_webp(content: bytes) -> bytes:

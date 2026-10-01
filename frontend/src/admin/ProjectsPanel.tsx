@@ -82,9 +82,7 @@ export function ProjectsPanel({ token, onAuthError }: { token: string; onAuthErr
     try {
       const saved = await saveAdminProjects(token, projects)
       setProjects(saved)
-      setStatus(
-        `Enregistré : ${saved.length} projet(s). Pensez à lancer \`make embeddings\` avant de pousser, pour que l'assistant les connaisse en ligne.`,
-      )
+      setStatus(`Enregistré : ${saved.length} projet(s). Le site et l'assistant sont à jour.`)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erreur inconnue")
       if (err instanceof AdminAuthError) onAuthError()

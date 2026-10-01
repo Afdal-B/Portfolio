@@ -15,7 +15,7 @@ import hashlib
 import json
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Protocol
 
 from app.domain.ports import Embedder
 
@@ -30,10 +30,19 @@ def cache_key(model: str, dimensions: int, task: str, text: str) -> str:
     return hashlib.sha256(f"{model}\n{dimensions}\n{task}\n{text}".encode("utf-8")).hexdigest()
 
 
+class SharedVectorCache(Protocol):
+    """A cache shared by every instance (e.g. Upstash), for passages created
+    after deployment, such as a project edited online."""
+
+    def get_many(self, keys: list[str]) -> dict[str, list[float]]: ...
+
+    def set_many(self, vectors: dict[str, list[float]]) -> None: ...
+
+
 class CachedEmbedder:
-    """Wraps an Embedder: document vectors come from the file when present.
-    Queries always go to the wrapped embedder, since they're never known in
-    advance."""
+    """Wraps an Embedder. Document vectors are looked up in the shipped file,
+    then in the shared cache, and only then computed (and shared). Queries
+    always go to the wrapped embedder, since they're never known in advance."""
 
     def __init__(
         self,
@@ -41,24 +50,28 @@ class CachedEmbedder:
         model: str,
         dimensions: int,
         path: Path = DEFAULT_CACHE_PATH,
+        shared: Optional[SharedVectorCache] = None,
     ) -> None:
         self._inner = inner
         self._model = model
         self._dimensions = dimensions
         self._path = path
+        self._shared = shared
         self._vectors: Optional[dict[str, list[float]]] = None
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         vectors = self._load()
         keys = [cache_key(self._model, self._dimensions, _DOCUMENT_TASK, text) for text in texts]
-        missing = [text for text, key in zip(texts, keys) if key not in vectors]
+        missing = {key: text for key, text in zip(keys, texts) if key not in vectors}
+        if missing and self._shared is not None:
+            vectors.update(self._shared.get_many(list(missing)))
+            missing = {key: text for key, text in missing.items() if key not in vectors}
         if missing:
-            logger.warning("%d passage(s) missing from the embedding cache; run `make embeddings`", len(missing))
-            for key, vector in zip(
-                [cache_key(self._model, self._dimensions, _DOCUMENT_TASK, t) for t in missing],
-                self._inner.embed_documents(missing),
-            ):
-                vectors[key] = vector
+            logger.info("Embedding %d passage(s) not found in any cache", len(missing))
+            computed = dict(zip(missing, self._inner.embed_documents(list(missing.values()))))
+            vectors.update(computed)
+            if self._shared is not None:
+                self._shared.set_many(computed)
         return [vectors[key] for key in keys]
 
     def embed_query(self, text: str) -> list[float]:

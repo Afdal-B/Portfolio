@@ -97,6 +97,10 @@ class ImageStore(Protocol):
         """Stores an image and returns the URL it is served from."""
         ...
 
+    def load(self, name: str) -> Optional[bytes]:
+        """The stored image with that file name, or None."""
+        ...
+
 
 class AnalyticsStore(Protocol):
     """Where audience figures are kept. Never holds an IP address: visits
