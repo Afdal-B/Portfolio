@@ -1,0 +1,113 @@
+[
+  {
+    "id": "critiscope-allocine",
+    "meta": {
+      "fr": "NLP · Topic modeling",
+      "en": "NLP · Topic modeling"
+    },
+    "title": {
+      "fr": "CritiScope : les thèmes des critiques Allociné",
+      "en": "CritiScope: the themes of Allociné reviews"
+    },
+    "result": {
+      "fr": "29 thèmes identifiés, dont 21 significativement liés au sentiment. Application Streamlit en ligne et modèle publié sur Hugging Face.",
+      "en": "29 topics identified, 21 of them significantly tied to sentiment. Live Streamlit app, model published on Hugging Face."
+    },
+    "problem": {
+      "fr": "Quels sujets reviennent dans les critiques de films Allociné, et lesquels sont les mieux notés ? Question traitée sur 19 112 critiques labellisées positif / négatif.",
+      "en": "Which topics come up in Allociné film reviews, and which ones are rated best? Answered on 19,112 reviews labelled positive / negative."
+    },
+    "method": {
+      "fr": "BERTopic sur des embeddings multilingual-e5-large-instruct (UMAP + HDBSCAN, mots-clés c-TF-IDF + MMR), comparé à une baseline LDA sur les mêmes tokens. Part d'avis positifs par thème, avec test binomial et correction de Benjamini-Hochberg. Thèmes étiquetés automatiquement par Gemini.",
+      "en": "BERTopic on multilingual-e5-large-instruct embeddings (UMAP + HDBSCAN, c-TF-IDF + MMR keywords), compared against an LDA baseline on the same tokens. Share of positive reviews per topic, with a binomial test and Benjamini-Hochberg correction. Topics labelled automatically by Gemini."
+    },
+    "stack": "BERTopic · Sentence Transformers · Streamlit · Python · spaCy · gensim · Hugging Face",
+    "metrics": {
+      "fr": "Cohérence C_V 0,492 contre 0,385 pour LDA à 29 thèmes · V de Cramér 0,51 · drames sentimentaux 84 % d'avis positifs, téléfilms 19 %.",
+      "en": "C_V coherence 0.492 vs 0.385 for LDA at 29 topics · Cramér's V 0.51 · sentimental dramas 84% positive, TV films 19%."
+    },
+    "url": "https://critiscope-allocine.streamlit.app/",
+    "image_url": "/api/uploads/d93f4cc27fff462b8e9301a1ad454f68.webp",
+    "screenshots": [],
+    "image_seed": "afdal-5",
+    "summary": {
+      "fr": "BERTopic sur 19 112 critiques : 29 thèmes, dont 21 liés au sentiment. Cohérence C_V de 0,492, contre 0,385 pour LDA.",
+      "en": "BERTopic on 19,112 reviews: 29 topics, 21 of them tied to sentiment. C_V coherence of 0.492, against 0.385 for LDA."
+    },
+    "code_url": "https://github.com/Afdal-B/critiscope-allocine"
+  },
+  {
+    "id": "textdetox",
+    "meta": {
+      "fr": "NLP · Recherche",
+      "en": "NLP · Research"
+    },
+    "title": {
+      "fr": "Détoxification de texte multilingue (TextDetox Challenge)",
+      "en": "Multilingual text detoxification (TextDetox Challenge)"
+    },
+    "result": {
+      "fr": "Participation au challenge international TextDetox (15 langues) et démo en ligne « Les mots autrement », qui reformule un texte français toxique en une version apaisée.",
+      "en": "Took part in the international TextDetox challenge (15 languages), plus a live demo, “Les mots autrement”, that rewrites toxic French text into a calmer version."
+    },
+    "problem": {
+      "fr": "Réécrire des textes toxiques en préservant leur sens, dans un contexte multilingue (15 langues), au Laboratoire ERIC.",
+      "en": "Rewriting toxic text while preserving meaning, in a multilingual setting (15 languages), at Laboratoire ERIC."
+    },
+    "method": {
+      "fr": "Recherche puis fine-tuning LoRA (PEFT) du modèle seq2seq multilingue mT0-XL pour réécrire un texte toxique sans en perdre le sens, dans le cadre du challenge TextDetox. Génération par beam search.",
+      "en": "Research, then LoRA (PEFT) fine-tuning of the multilingual seq2seq model mT0-XL to rewrite toxic text without losing its meaning, as part of the TextDetox challenge. Beam-search decoding."
+    },
+    "stack": "PyTorch · PEFT (LoRA) · Gradio · Python · Transformers · mT0-XL · Hugging Face",
+    "metrics": {
+      "fr": "Score TextDetox 2025 de 0,73 · modèles évalués sur 15 langues dans le cadre du challenge · adaptateur LoRA publié sur Hugging Face (Dalfaxy/mt0_xl_french_detox_v3).",
+      "en": "TextDetox 2025 score of 0.73 · models evaluated across 15 languages for the challenge · LoRA adapter published on Hugging Face (Dalfaxy/mt0_xl_french_detox_v3)."
+    },
+    "url": "https://dalfaxy-text-detox.hf.space/",
+    "image_url": "/api/uploads/15c5761e2d1440c7b17c930c3b793ec9.webp",
+    "screenshots": [],
+    "image_seed": "afdal-4",
+    "summary": {
+      "fr": "Fine-tuning LoRA de mT0-XL pour réécrire un texte toxique sans en perdre le sens. Score TextDetox 2025 : 0,73.",
+      "en": "LoRA fine-tuning of mT0-XL to rewrite toxic text without losing its meaning. TextDetox 2025 score: 0.73."
+    },
+    "code_url": "https://huggingface.co/Dalfaxy/mt0_xl_french_detox_v3"
+  },
+  {
+    "id": "anime-recommendations",
+    "meta": {
+      "fr": "Recommandation · MLOps",
+      "en": "Recommender systems · MLOps"
+    },
+    "title": {
+      "fr": "AnimeReco : recommandation d'animes",
+      "en": "AnimeReco: anime recommendations"
+    },
+    "result": {
+      "fr": "Application complète déployée sur Azure : recherche, animes similaires, notation et recommandations personnelles instantanées, avec un profil par pseudo.",
+      "en": "Full application deployed on Azure: search, similar animes, rating and instant personal recommendations, with a profile per pseudonym."
+    },
+    "problem": {
+      "fr": "Recommander des animes à partir des goûts de spectateurs similaires, y compris pour un nouvel utilisateur qui vient de noter quelques titres, sans réentraîner le modèle à chaque note.",
+      "en": "Recommend animes from the tastes of similar viewers, including for a new user who has just rated a few titles, without retraining the model on every rating."
+    },
+    "method": {
+      "fr": "Filtrage collaboratif ALS entraîné avec PySpark sur le jeu MyAnimeList (30 000 utilisateurs), via un pipeline Azure ML. Recommandations personnelles calculées à la volée par « fold-in » (moindres carrés non négatifs sur les vecteurs d'items figés), servies en NumPy sans JVM. L'API recharge automatiquement chaque nouvelle version du modèle.",
+      "en": "ALS collaborative filtering trained with PySpark on the MyAnimeList dataset (30,000 users), through an Azure ML pipeline. Personal recommendations computed on the fly by fold-in (non-negative least squares against frozen item vectors), served with NumPy and no JVM. The API picks up each new model version automatically."
+    },
+    "stack": "PySpark (ALS) · FastAPI · React · Azure (Container Apps, SQL, Blob Storage, Machine Learning) · Python · NumPy · Docker",
+    "metrics": {
+      "fr": "",
+      "en": ""
+    },
+    "url": "https://anime-reco.redground-45ab4c65.francecentral.azurecontainerapps.io/",
+    "image_url": "/api/uploads/7b6e594a5c33437a9c2bf69515f5f5da.webp",
+    "screenshots": [],
+    "image_seed": "afdal-6",
+    "summary": {
+      "fr": "Filtrage collaboratif ALS sur MyAnimeList, recommandations personnelles instantanées, application complète déployée sur Azure.",
+      "en": "ALS collaborative filtering on MyAnimeList, instant personal recommendations, full application deployed on Azure."
+    },
+    "code_url": "https://github.com/Afdal-B/anime-recommendations"
+  }
+]

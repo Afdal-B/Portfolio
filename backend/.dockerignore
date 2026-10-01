@@ -1,0 +1,10 @@
+.venv/
+.chroma/
+.pytest_cache/
+**/__pycache__/
+*.pyc
+tests/
+.env
+*.env.local
+Dockerfile
+.dockerignore

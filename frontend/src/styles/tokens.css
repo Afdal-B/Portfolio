@@ -1,0 +1,189 @@
+/* Design tokens, originally ported from design_handoff_portfolio_chat's
+   <style> block, then retuned for readability: the accent is now defined
+   per theme (the prototype forced one dark teal in both, which failed WCAG
+   contrast as text on the dark panel), and secondary text is more opaque. */
+
+:root {
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  /* #0f7d78 carries white text at ~5:1 and reads as text on light panels. */
+  --ac: #0f7d78;
+  --ac-soft: color-mix(in srgb, #0f7d78 12%, transparent);
+  --ac-line: color-mix(in srgb, #0f7d78 40%, transparent);
+  /* Text/icon colour on top of an --ac fill. */
+  --on-ac: #ffffff;
+  --ink: #0d1117;
+  --ink-2: rgba(13, 17, 23, 0.76);
+  --ink-3: rgba(13, 17, 23, 0.58);
+  --page: #e9f2f2;
+  --glass: rgba(255, 255, 255, 0.62);
+  --glass-2: rgba(255, 255, 255, 0.44);
+  --panel: #fafdfd;
+  /* Technology chips; tech logos are contrast-checked against these. */
+  --chip: #eef5f5;
+  --stroke: rgba(13, 17, 23, 0.08);
+  --stroke-2: rgba(13, 17, 23, 0.14);
+  --shadow: 0 1px 2px rgba(13, 17, 23, 0.04), 0 12px 40px rgba(13, 17, 23, 0.07);
+}
+
+html[data-pf="dark"] {
+  /* Lighter teal: ~8:1 as text on the dark panel. Too light for white text,
+     so accent fills carry dark text instead (--on-ac). */
+  --ac: #3cc5b8;
+  --ac-soft: color-mix(in srgb, #3cc5b8 14%, transparent);
+  --ac-line: color-mix(in srgb, #3cc5b8 45%, transparent);
+  --on-ac: #04141a;
+  --ink: #eef2f8;
+  --ink-2: rgba(238, 242, 248, 0.82);
+  --ink-3: rgba(238, 242, 248, 0.62);
+  --page: #04141a;
+  --glass: rgba(255, 255, 255, 0.055);
+  --glass-2: rgba(255, 255, 255, 0.035);
+  --panel: #0b1a20;
+  --chip: #10232a;
+  --stroke: rgba(255, 255, 255, 0.1);
+  --stroke-2: rgba(255, 255, 255, 0.16);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Anchored sections land with their heading just below the sticky header
+   (~72px): sections carry 48px of top padding, the footer none. */
+section[id] {
+  scroll-margin-top: 40px;
+}
+
+footer[id] {
+  scroll-margin-top: 88px;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: "Archivo", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--ac);
+  text-underline-offset: 3px;
+}
+
+/* Opacity only: buttons styled as links set their own colours, and an
+   accent text colour on an accent fill would make the label vanish. */
+a:hover {
+  opacity: 0.8;
+}
+
+/* On narrow screens the header keeps only its controls: the sections are a
+   short scroll away and the hero links to them. */
+@media (max-width: 760px) {
+  .site-nav {
+    display: none !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ac);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--ac-soft);
+}
+
+/* Tailwind's base styles strip list markers; text lists put them back.
+   (Chip rows and other lists used as layout keep list-style: none.) */
+ul.text-list {
+  list-style: disc;
+}
+
+ol.text-list {
+  list-style: decimal;
+}
+
+.text-list > li::marker {
+  color: var(--ac);
+}
+
+/* Assistant answers rendered from Markdown. Tailwind's base styles reset
+   lists, tables and spacing, so they are restored here. */
+.answer-md > :first-child {
+  margin-top: 0;
+}
+
+.answer-md > :last-child {
+  margin-bottom: 0;
+}
+
+.answer-md p,
+.answer-md ul,
+.answer-md ol,
+.answer-md table {
+  margin: 0 0 0.7em;
+}
+
+.answer-md ul,
+.answer-md ol {
+  padding-left: 1.3em;
+}
+
+.answer-md ul {
+  list-style: disc;
+}
+
+.answer-md ol {
+  list-style: decimal;
+}
+
+.answer-md li + li {
+  margin-top: 0.3em;
+}
+
+.answer-md li::marker {
+  color: var(--ac);
+}
+
+.answer-md strong {
+  font-weight: 700;
+}
+
+/* Wide tables scroll on their own instead of stretching the bubble. */
+.answer-md table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+
+.answer-md th,
+.answer-md td {
+  padding: 6px 10px;
+  border: 1px solid var(--stroke-2);
+  text-align: left;
+  vertical-align: top;
+}
+
+.answer-md th {
+  background: var(--chip);
+  font-weight: 600;
+}
+
+.answer-md code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+input::placeholder {
+  color: var(--ink-3);
+}

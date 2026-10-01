@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <title>A.B</title>
+  <!-- Monogram: letters drawn as strokes, not text, so the icon never
+       depends on which fonts the visitor's system has. -->
+  <rect width="64" height="64" rx="14" fill="#0b1a20"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="#3cc5b8" stroke-opacity=".45" stroke-width="2"/>
+  <g fill="none" stroke="#eef2f8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 46 L16 18 L25 46 M10.5 36 H21.5"/>
+    <path d="M39 46 V18 H45.5 a6.5 6.5 0 0 1 0 13 H39 M45.5 31 H47 a7.5 7.5 0 0 1 0 15 H39"/>
+  </g>
+  <circle cx="32" cy="43.5" r="3.2" fill="#3cc5b8"/>
+</svg>
