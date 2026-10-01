@@ -68,6 +68,8 @@ export const copy = {
     // Contact
     contactTitle: "Travaillons ensemble",
     contactLead: "Réponse sous 24 heures, du lundi au vendredi.",
+    privacy: "Mesure d'audience anonyme : ni cookie, ni adresse IP conservée.",
+    chatPrivacy: "Les questions posées sont conservées 90 jours, sans donnée d'identification, pour améliorer l'assistant.",
 
     // Chat
     shots: "Aperçus",
@@ -155,6 +157,8 @@ export const copy = {
 
     contactTitle: "Let's work together",
     contactLead: "Reply within 24 hours, Monday to Friday.",
+    privacy: "Anonymous audience measurement: no cookies, no IP address stored.",
+    chatPrivacy: "Questions are kept for 90 days, with no identifying data, to improve the assistant.",
 
     shots: "Screenshots",
     visit: "Try the demo",

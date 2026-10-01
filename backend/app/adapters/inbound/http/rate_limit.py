@@ -8,7 +8,7 @@ portfolio, and it resets on restart, which is acceptable here."""
 import threading
 import time
 from collections import deque
-from typing import Optional
+from typing import Callable, Optional
 
 from fastapi import HTTPException, Request, status
 
@@ -45,8 +45,12 @@ def client_key(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-def enforce(limiter: SlidingWindowLimiter, request: Request) -> None:
+def enforce(
+    limiter: SlidingWindowLimiter, request: Request, on_reject: Optional[Callable[[], None]] = None
+) -> None:
     if not limiter.allow(client_key(request)):
+        if on_reject is not None:
+            on_reject()
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many questions, try again later.",

@@ -1,4 +1,5 @@
 import type { AdminProject } from "../types/content"
+import type { AdminCapabilities, Stats } from "../types/stats"
 
 const BASE = "/api/admin"
 
@@ -10,9 +11,21 @@ async function request<T>(path: string, token: string, init?: RequestInit): Prom
     headers: { ...init?.headers, "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   })
   if (res.status === 401) throw new AdminAuthError("Mot de passe incorrect")
-  if (res.status === 403) throw new AdminAuthError("L'API admin n'est pas configurée sur le serveur")
-  if (!res.ok) throw new Error(`${init?.method ?? "GET"} ${path} a échoué (${res.status})`)
+  if (res.status === 404) throw new AdminAuthError("L'administration n'est pas activée sur ce serveur")
+  if (res.status === 429) throw new AdminAuthError("Trop de tentatives, réessayez dans une heure")
+  if (!res.ok) {
+    const detail = await res.json().catch(() => null)
+    throw new Error(detail?.detail ?? `${init?.method ?? "GET"} ${path} a échoué (${res.status})`)
+  }
   return res.json() as Promise<T>
+}
+
+export function getCapabilities(token: string): Promise<AdminCapabilities> {
+  return request<AdminCapabilities>("/capabilities", token)
+}
+
+export function getStats(token: string, days: number): Promise<Stats> {
+  return request<Stats>(`/stats?days=${days}`, token)
 }
 
 export function getAdminProjects(token: string): Promise<AdminProject[]> {

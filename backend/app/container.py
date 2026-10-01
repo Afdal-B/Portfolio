@@ -6,10 +6,13 @@ nothing: in particular, no API client is created and no Chroma client is
 opened until something actually asks for the retriever."""
 
 import os
+import secrets
 from functools import cached_property
 from pathlib import Path
 from typing import Optional
 
+from app.adapters.outbound.analytics.memory_store import InMemoryAnalyticsStore
+from app.adapters.outbound.analytics.upstash_store import UpstashAnalyticsStore
 from app.adapters.outbound.llm.gemini_answer_generator import GeminiAnswerGenerator
 from app.adapters.outbound.llm.scripted_answer_generator import ScriptedAnswerGenerator
 from app.adapters.outbound.persistence.filesystem_image_store import FilesystemImageStore
@@ -28,7 +31,8 @@ from app.adapters.outbound.rag.markdown_knowledge_repository import MarkdownKnow
 from app.config import Settings, settings as default_settings
 from app.domain.models import Chunk
 from app.domain.project_chunking import LANGS, overview_chunk, project_chunk
-from app.domain.ports import AnswerGenerator, Retriever
+from app.domain.ports import AnalyticsStore, AnswerGenerator, Retriever
+from app.domain.services.analytics_service import AnalyticsService
 from app.domain.services.chat_service import ChatService
 from app.domain.services.content_service import ContentService
 from app.domain.services.project_service import ProjectService
@@ -94,6 +98,19 @@ class Container:
     def scripted_generator(self) -> AnswerGenerator:
         return ScriptedAnswerGenerator(self.qa_repository, self.copy_repository)
 
+    @cached_property
+    def analytics_store(self) -> AnalyticsStore:
+        url, token = self.settings.upstash_redis_rest_url, self.settings.upstash_redis_rest_token
+        if url and token:
+            return UpstashAnalyticsStore(url, token)
+        return InMemoryAnalyticsStore()
+
+    @property
+    def projects_editable(self) -> bool:
+        """The catalog can be edited where its files can be written: not on
+        Vercel, whose functions have a read-only filesystem."""
+        return not os.environ.get("VERCEL")
+
     def indexed_chunks(self) -> list[Chunk]:
         """Every passage the vector store holds, in both languages: the
         knowledge documents and the project catalog. What the embedding
@@ -132,6 +149,14 @@ class Container:
             contacts=StaticContactRepository(),
             qa=self.qa_repository,
         )
+
+    @cached_property
+    def analytics_service(self) -> AnalyticsService:
+        # The visitor-hash salt must be secret and identical across instances,
+        # or one person would count as several visitors. The Upstash token is
+        # both; without Upstash, figures are per process anyway.
+        secret = self.settings.upstash_redis_rest_token or secrets.token_hex(16)
+        return AnalyticsService(self.analytics_store, secret)
 
     @cached_property
     def project_service(self) -> ProjectService:

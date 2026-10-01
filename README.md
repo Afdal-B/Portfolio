@@ -65,6 +65,15 @@ similarité, jamais déclarées par le modèle. Sans clé Gemini, ou si l'appel
 limité à 20 questions par heure et par visiteur, pour protéger le quota
 gratuit de Gemini.
 
+## Mesure d'audience
+
+Visites et questions posées à l'assistant sont comptées sans cookie et sans
+conserver d'adresse IP : un visiteur est reconnu au sein d'une même journée
+par une empreinte salée qui change chaque jour. Le pays et la ville viennent
+des en-têtes de géolocalisation de Vercel. Les chiffres sont stockés dans
+Upstash Redis (offre gratuite), dans des clés qui expirent seules : 400 jours
+pour les compteurs, 90 jours pour le texte des questions.
+
 ## Développement
 
 Prérequis : Node 20+, [Poetry](https://python-poetry.org) et Python 3.11+.
@@ -86,8 +95,9 @@ Tout le site est déployé sur **Vercel**, dans un seul projet, grâce aux
 - `frontend/` est construit avec Vite et servi pour toutes les adresses ;
 - `backend/` tourne comme fonction Python (FastAPI) et reçoit `/api/*`.
 
-Chaque push sur `main` redéploie les deux. La seule variable d'environnement
-à définir dans le projet Vercel est `PORTFOLIO_GEMINI_API_KEY`. Le disque des
+Chaque push sur `main` redéploie les deux. Variables d'environnement du projet
+Vercel : `PORTFOLIO_GEMINI_API_KEY`, et celles d'Upstash Redis, ajoutées par
+son intégration Vercel. Le disque des
 fonctions est en lecture seule, sauf `/tmp` où l'index ChromaDB est
 reconstruit à chaque démarrage d'instance à partir des vecteurs pré-calculés.
 Pour modifier le contenu (documents ou projets) : on édite en local, on lance

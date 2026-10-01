@@ -11,9 +11,11 @@ from pathlib import Path
 APP = Path(__file__).resolve().parent.parent / "app"
 
 # Standard library only — plus the domain itself.
-DOMAIN_ALLOWED_ROOTS = {"typing", "dataclasses", "logging", "re", "abc", "app"}
+# Standard-library modules only: the domain stays free of frameworks and I/O
+# clients (hashing and date handling are pure computations).
+DOMAIN_ALLOWED_ROOTS = {"typing", "dataclasses", "logging", "re", "abc", "hashlib", "datetime", "urllib", "app"}
 
-FRAMEWORKS = {"fastapi", "pydantic", "pydantic_settings", "chromadb", "sentence_transformers", "google", "PIL"}
+FRAMEWORKS = {"fastapi", "pydantic", "pydantic_settings", "chromadb", "google", "PIL", "httpx"}
 
 
 def imported_roots(path: Path) -> set[str]:

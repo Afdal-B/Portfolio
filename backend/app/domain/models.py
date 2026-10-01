@@ -123,3 +123,44 @@ class Answer:
     confidence: Optional[int]
     intent: Intent
     engine: Engine
+
+
+# --- Audience analytics -------------------------------------------------
+
+QuestionOutcome = Literal["rag", "scripted", "limited"]
+
+
+@dataclass(frozen=True)
+class VisitEvent:
+    day: str  # ISO date, UTC
+    visitor: str  # daily-salted hash: identifies a visitor for one day only
+    country: Optional[str] = None  # ISO 3166-1 alpha-2
+    city: Optional[str] = None
+    referrer: Optional[str] = None  # host of the referring site, None = direct
+
+
+@dataclass(frozen=True)
+class QuestionEvent:
+    at: str  # ISO datetime, UTC
+    outcome: QuestionOutcome
+    text: str = ""  # empty when the question never reached the assistant
+    lang: str = ""
+    confidence: Optional[int] = None
+
+
+@dataclass(frozen=True)
+class DailyStats:
+    day: str
+    page_views: int
+    visitors: int
+    questions: dict[str, int]  # by outcome
+
+
+@dataclass(frozen=True)
+class AnalyticsReport:
+    days: list[DailyStats]
+    countries: dict[str, int]
+    cities: dict[str, int]
+    referrers: dict[str, int]
+    recent_questions: list[QuestionEvent]
+    persistent: bool  # False: in-memory store, figures vanish on restart

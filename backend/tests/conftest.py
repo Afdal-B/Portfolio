@@ -14,6 +14,8 @@ CACHED = (
     "chat_service",
     "content_service",
     "project_service",
+    "analytics_store",
+    "analytics_service",
 )
 
 
@@ -28,7 +30,11 @@ def offline_container(monkeypatch):
     for name in CACHED:
         container.__dict__.pop(name, None)
 
-    monkeypatch.setattr(container, "settings", Settings(gemini_api_key=None, admin_password=None))
+    monkeypatch.setattr(
+        container,
+        "settings",
+        Settings(gemini_api_key=None, admin_password=None, upstash_redis_rest_url=None, upstash_redis_rest_token=None),
+    )
 
     yield container
 

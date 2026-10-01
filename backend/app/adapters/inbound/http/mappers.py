@@ -3,6 +3,7 @@ domain's bilingual fields."""
 
 from app.adapters.inbound.http import schemas
 from app.domain.models import (
+    AnalyticsReport,
     Answer,
     Contact,
     Experience,
@@ -112,3 +113,21 @@ def contact_to_dto(contact: Contact) -> schemas.ContactOut:
 
 def suggestion_to_dto(suggestion: Suggestion) -> schemas.SuggestionOut:
     return schemas.SuggestionOut(id=suggestion.id, label=suggestion.label)
+
+
+def report_to_dto(report: AnalyticsReport) -> schemas.StatsOut:
+    return schemas.StatsOut(
+        days=[
+            schemas.DailyStatsOut(day=d.day, page_views=d.page_views, visitors=d.visitors, questions=d.questions)
+            for d in report.days
+        ],
+        countries=report.countries,
+        cities=report.cities,
+        referrers=report.referrers,
+        recent_questions=[
+            schemas.QuestionOut(at=q.at, outcome=q.outcome, text=q.text, lang=q.lang, confidence=q.confidence)
+            for q in report.recent_questions
+        ],
+        persistent=report.persistent,
+    )
+

@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.adapters.inbound.http import routes_admin, routes_chat, routes_content
+from app.adapters.inbound.http import routes_admin, routes_analytics, routes_chat, routes_content
 from app.adapters.outbound.persistence.filesystem_image_store import DEFAULT_UPLOAD_DIR, URL_PREFIX
 from app.container import container
 
@@ -47,6 +47,7 @@ app.add_middleware(
 app.include_router(routes_chat.router, prefix="/api")
 app.include_router(routes_content.router, prefix="/api")
 app.include_router(routes_admin.router, prefix="/api")
+app.include_router(routes_analytics.router, prefix="/api")
 
 # Images uploaded through the admin UI, served read-only. Created only when
 # missing: on a read-only filesystem (serverless), it ships with the code.

@@ -7,6 +7,7 @@ the composition root (app/container.py) wires them together."""
 from typing import Optional, Protocol, Sequence
 
 from app.domain.models import (
+    AnalyticsReport,
     Chunk,
     Contact,
     Engine,
@@ -15,9 +16,11 @@ from app.domain.models import (
     Lang,
     Project,
     QAEntry,
+    QuestionEvent,
     RetrievedChunk,
     Skill,
     SkillGroup,
+    VisitEvent,
 )
 
 
@@ -93,3 +96,16 @@ class ImageStore(Protocol):
     def save(self, content: bytes) -> str:
         """Stores an image and returns the URL it is served from."""
         ...
+
+
+class AnalyticsStore(Protocol):
+    """Where audience figures are kept. Never holds an IP address: visits
+    arrive already anonymized."""
+
+    persistent: bool
+
+    def record_visit(self, event: VisitEvent) -> None: ...
+
+    def record_question(self, event: QuestionEvent) -> None: ...
+
+    def report(self, days: Sequence[str], recent_limit: int) -> AnalyticsReport: ...

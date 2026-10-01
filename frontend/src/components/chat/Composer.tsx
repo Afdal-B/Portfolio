@@ -57,6 +57,7 @@ export function Composer() {
             ↑
           </button>
         </form>
+        <p style={{ margin: "8px 2px 0", fontSize: 12, lineHeight: 1.4, color: "var(--ink-3)" }}>{L.chatPrivacy}</p>
       </div>
     </div>
   )

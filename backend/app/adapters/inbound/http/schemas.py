@@ -108,3 +108,32 @@ class UploadResult(BaseModel):
 
 
 ProjectOut.model_rebuild()
+
+
+class DailyStatsOut(BaseModel):
+    day: str
+    page_views: int
+    visitors: int
+    questions: dict[str, int]
+
+
+class QuestionOut(BaseModel):
+    at: str
+    outcome: str
+    text: str
+    lang: str
+    confidence: Optional[int]
+
+
+class StatsOut(BaseModel):
+    days: list[DailyStatsOut]
+    countries: dict[str, int]
+    cities: dict[str, int]
+    referrers: dict[str, int]
+    recent_questions: list[QuestionOut]
+    persistent: bool
+
+
+class AdminCapabilities(BaseModel):
+    projects_editable: bool
+

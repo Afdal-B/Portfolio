@@ -3,6 +3,7 @@ plain values — no domain module ever imports this."""
 
 from typing import Optional
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -29,6 +30,21 @@ class Settings(BaseSettings):
     # Admin API (project editing without a redeploy). Unset = admin endpoints
     # are disabled entirely, so the feature is opt-in per deployment.
     admin_password: Optional[str] = None
+
+    # Audience analytics on Upstash Redis. Also read under the names the
+    # Vercel/Upstash integration sets. Unset: figures are kept in memory.
+    upstash_redis_rest_url: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "PORTFOLIO_UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_URL", "KV_REST_API_URL"
+        ),
+    )
+    upstash_redis_rest_token: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "PORTFOLIO_UPSTASH_REDIS_REST_TOKEN", "UPSTASH_REDIS_REST_TOKEN", "KV_REST_API_TOKEN"
+        ),
+    )
 
     # Questions allowed per visitor per hour on the chat endpoint.
     chat_rate_limit_per_hour: int = 20

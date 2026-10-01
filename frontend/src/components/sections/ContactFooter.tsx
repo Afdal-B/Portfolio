@@ -31,6 +31,7 @@ export function ContactFooter() {
             {L.contactTitle}
           </h2>
           <p style={{ margin: 0, fontSize: 17, color: "var(--ink-2)" }}>{L.contactLead}</p>
+          <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--ink-3)" }}>{L.privacy}</p>
         </div>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           {email && (

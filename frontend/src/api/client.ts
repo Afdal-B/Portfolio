@@ -1,3 +1,5 @@
+import { ownerHeaders } from "../lib/owner"
+
 const BASE = "/api"
 
 /** A non-2xx response, keeping the status so callers can tell a rate limit
@@ -21,7 +23,7 @@ export async function apiGet<T>(path: string, params?: Record<string, string>): 
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...ownerHeaders() },
     body: JSON.stringify(body),
   })
   if (!res.ok) throw new ApiError(`POST ${path} failed: ${res.status}`, res.status)
