@@ -3,6 +3,7 @@ import { useAppState } from "../../context/AppStateContext"
 import { t } from "../../i18n/copy"
 import { TechChipList } from "../tech/TechChip"
 import { Section } from "./Section"
+import { ExperiencePlaceholder, LoadError } from "./Placeholders"
 import { cardStyle } from "../../styles/surfaces"
 import type { ExperienceDTO } from "../../types/content"
 
@@ -80,16 +81,21 @@ function ExperienceCard({ e }: { e: ExperienceDTO }) {
 }
 
 export function ExperienceSection() {
-  const { lang, experience } = useAppState()
+  const { lang, experience, contentStatus } = useAppState()
   const L = t(lang)
+  const status = experience.length > 0 ? "ready" : contentStatus.experience
 
   return (
     <Section id="experience" title={L.navExperience}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {experience.map((e) => (
-          <ExperienceCard key={e.company} e={e} />
-        ))}
-      </div>
+      {status === "loading" && <ExperiencePlaceholder />}
+      {status === "error" && <LoadError />}
+      {status === "ready" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {experience.map((e) => (
+            <ExperienceCard key={e.company} e={e} />
+          ))}
+        </div>
+      )}
     </Section>
   )
 }

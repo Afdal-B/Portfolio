@@ -49,6 +49,8 @@ export const copy = {
     // Experience
     stack: "Stack",
     stackLabel: "Stack technique",
+    loading: "Chargement…",
+    loadError: "Ce contenu est momentanément indisponible. Rechargez la page dans un instant.",
     showDetails: "Voir le détail",
     hideDetails: "Masquer le détail",
 
@@ -140,6 +142,8 @@ export const copy = {
 
     stack: "Stack",
     stackLabel: "Tech stack",
+    loading: "Loading…",
+    loadError: "This content is temporarily unavailable. Reload the page in a moment.",
     showDetails: "Show details",
     hideDetails: "Hide details",
 

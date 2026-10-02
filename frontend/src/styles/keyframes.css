@@ -33,6 +33,24 @@
   }
 }
 
+/* Loading placeholders: a light sweeping across the grey shape. */
+@keyframes pfShimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.skeleton {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--stroke) 30%, var(--stroke-2) 50%, var(--stroke) 70%);
+  background-size: 200% 100%;
+  animation: pfShimmer 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001s !important;

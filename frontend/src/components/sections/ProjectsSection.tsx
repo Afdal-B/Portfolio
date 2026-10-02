@@ -5,6 +5,7 @@ import { codeLinkLabel } from "../../lib/projectLinks"
 import { TechChipList } from "../tech/TechChip"
 import type { ProjectDTO } from "../../types/content"
 import { Section } from "./Section"
+import { LoadError, ProjectsPlaceholder } from "./Placeholders"
 import { cardStyle, kickerStyle } from "../../styles/surfaces"
 
 /** How many stack items a card shows; the modal lists them all. */
@@ -81,16 +82,21 @@ function ProjectCard({ project, index }: { project: ProjectDTO; index: number })
 }
 
 export function ProjectsSection() {
-  const { lang, projects } = useAppState()
+  const { lang, projects, contentStatus } = useAppState()
   const L = t(lang)
+  const status = projects.length > 0 ? "ready" : contentStatus.projects
 
   return (
     <Section id="projets" title={L.navProjects} aside={L.projectsLead}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-        {projects.map((p, i) => (
-          <ProjectCard key={p.title} project={p} index={i} />
-        ))}
-      </div>
+      {status === "loading" && <ProjectsPlaceholder />}
+      {status === "error" && <LoadError />}
+      {status === "ready" && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
+          {projects.map((p, i) => (
+            <ProjectCard key={p.title} project={p} index={i} />
+          ))}
+        </div>
+      )}
     </Section>
   )
 }

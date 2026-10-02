@@ -2,11 +2,21 @@ import { useAppState } from "../../context/AppStateContext"
 import { t } from "../../i18n/copy"
 import { TechChipList } from "../tech/TechChip"
 import { Section } from "./Section"
+import { LoadError, SkillsPlaceholder } from "./Placeholders"
 import { cardStyle } from "../../styles/surfaces"
 
 export function SkillsSection() {
-  const { lang, skillGroups } = useAppState()
+  const { lang, skillGroups, contentStatus } = useAppState()
   const L = t(lang)
+  const status = skillGroups.length > 0 ? "ready" : contentStatus.skills
+
+  if (status !== "ready") {
+    return (
+      <Section id="competences" title={L.navSkills}>
+        {status === "loading" ? <SkillsPlaceholder /> : <LoadError />}
+      </Section>
+    )
+  }
 
   return (
     <Section id="competences" title={L.navSkills}>

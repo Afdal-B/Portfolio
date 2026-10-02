@@ -11,6 +11,23 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/** Retries a content request: right after a quiet period the backend may
+ *  need a moment to start, and a first attempt can fail while it does. */
+async function withRetry<T>(load: () => Promise<T>, attempts = 3, delayMs = 1500): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await load()
+    } catch (err) {
+      if (attempt >= attempts) throw err
+      await sleep(delayMs * attempt)
+    }
+  }
+}
+
+export type LoadStatus = "loading" | "ready" | "error"
+
+type ContentKey = "projects" | "experience" | "skills"
+
 interface AppState {
   lang: Lang
   theme: Theme
@@ -24,6 +41,8 @@ interface AppState {
   skillGroups: SkillGroupDTO[]
   contacts: ContactDTO[]
   suggestions: SuggestionDTO[]
+  /** Per page section, so each can show a placeholder until its content arrives. */
+  contentStatus: Record<ContentKey, LoadStatus>
   setLang: (lang: Lang) => void
   toggleTheme: () => void
   setDraft: (draft: string) => void
@@ -49,16 +68,41 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [skillGroups, setSkillGroups] = useState<SkillGroupDTO[]>([])
   const [contacts, setContacts] = useState<ContactDTO[]>([])
   const [suggestions, setSuggestions] = useState<SuggestionDTO[]>([])
+  const [contentStatus, setContentStatus] = useState<Record<ContentKey, LoadStatus>>({
+    projects: "loading",
+    experience: "loading",
+    skills: "loading",
+  })
 
   useEffect(() => {
     document.documentElement.setAttribute("data-pf", theme)
   }, [theme])
 
   useEffect(() => {
-    getProjects(lang).then(setProjects)
-    getExperience(lang).then(setExperience)
-    getSuggestions(lang).then(setSuggestions)
-    getSkillGroups(lang).then(setSkillGroups)
+    let cancelled = false
+    // On a language switch the previous content stays on screen until the
+    // new one arrives: the placeholder is only for the very first load.
+    const load = <T,>(key: ContentKey, request: () => Promise<T>, apply: (value: T) => void) =>
+      withRetry(request)
+        .then((value) => {
+          if (cancelled) return
+          apply(value)
+          setContentStatus((prev) => ({ ...prev, [key]: "ready" }))
+        })
+        .catch(() => {
+          if (cancelled) return
+          setContentStatus((prev) => (prev[key] === "ready" ? prev : { ...prev, [key]: "error" }))
+        })
+
+    load("projects", () => getProjects(lang), setProjects)
+    load("experience", () => getExperience(lang), setExperience)
+    load("skills", () => getSkillGroups(lang), setSkillGroups)
+    withRetry(() => getSuggestions(lang))
+      .then((value) => !cancelled && setSuggestions(value))
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
   }, [lang])
 
   useEffect(() => {
@@ -66,7 +110,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [lang])
 
   useEffect(() => {
-    getContacts().then(setContacts)
+    withRetry(getContacts)
+      .then(setContacts)
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -137,6 +183,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       skillGroups,
       contacts,
       suggestions,
+      contentStatus,
       setLang,
       toggleTheme,
       setDraft,
@@ -158,6 +205,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       skillGroups,
       contacts,
       suggestions,
+      contentStatus,
       toggleTheme,
       ask,
       toggleTrace,
