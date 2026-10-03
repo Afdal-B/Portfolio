@@ -2,19 +2,98 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Afdal Bouraima · Développeur IA, NLP et LLM</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>Afdal Bouraima · Développeur IA (NLP, LLM, RAG) à Lyon</title>
     <meta
       name="description"
-      content="Afdal Bouraima, développeur IA spécialisé en NLP, RAG et LLM, disponible immédiatement pour un CDI en France. Projets en ligne, expérience, compétences et assistant RAG."
+      content="Portfolio d'Afdal Bouraima, développeur IA spécialisé en NLP, LLM et RAG, diplômé du Master MALIA (Lyon 2). Projets en ligne, expérience, compétences. Disponible pour un CDI en France."
     />
-    <meta property="og:title" content="Afdal Bouraima · Développeur IA, NLP et LLM" />
+    <meta name="author" content="Afdal Bouraima" />
+    <link rel="canonical" href="https://www.afdal-bouraima.fr/" />
+    <meta name="theme-color" content="#04141a" />
+
+    <!-- Link previews (LinkedIn, Slack, WhatsApp, X...) -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="Afdal Bouraima" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:url" content="https://www.afdal-bouraima.fr/" />
+    <meta property="og:title" content="Afdal Bouraima · Développeur IA (NLP, LLM, RAG)" />
     <meta
       property="og:description"
+      content="Projets en ligne, expérience et compétences, plus un assistant RAG à interroger. Disponible pour un CDI en France."
+    />
+    <meta property="og:image" content="https://www.afdal-bouraima.fr/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Afdal Bouraima, développeur IA : NLP, RAG et LLM" />
+    <meta property="profile:first_name" content="Afdal" />
+    <meta property="profile:last_name" content="Bouraima" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Afdal Bouraima · Développeur IA (NLP, LLM, RAG)" />
+    <meta
+      name="twitter:description"
       content="Projets en ligne, expérience et compétences, plus un assistant RAG à interroger."
     />
-    <meta property="og:type" content="website" />
+    <meta name="twitter:image" content="https://www.afdal-bouraima.fr/og-image.png" />
+
+    <!-- Structured data: tells search engines this site and these profiles
+         are the same person (the basis for a name search result). -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Person",
+            "@id": "https://www.afdal-bouraima.fr/#person",
+            "name": "Afdal Bouraima",
+            "givenName": "Afdal",
+            "familyName": "Bouraima",
+            "url": "https://www.afdal-bouraima.fr/",
+            "image": "https://www.afdal-bouraima.fr/og-image.png",
+            "jobTitle": "Développeur IA",
+            "description": "Développeur IA spécialisé en NLP, LLM et RAG, de la conception à la mise en production.",
+            "email": "mailto:afdalbouraima2@gmail.com",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Lyon",
+              "addressCountry": "FR"
+            },
+            "alumniOf": [
+              { "@type": "CollegeOrUniversity", "name": "Université Lumière Lyon 2" },
+              { "@type": "CollegeOrUniversity", "name": "Université de Lorraine" }
+            ],
+            "knowsLanguage": ["fr", "en"],
+            "knowsAbout": [
+              "Intelligence artificielle",
+              "Traitement automatique du langage (NLP)",
+              "Grands modèles de langage (LLM)",
+              "Retrieval-Augmented Generation (RAG)",
+              "Deep Learning",
+              "Computer Vision",
+              "Séries temporelles",
+              "MLOps"
+            ],
+            "sameAs": [
+              "https://www.linkedin.com/in/afdal-bouraima-276183253",
+              "https://github.com/Afdal-B",
+              "https://huggingface.co/Dalfaxy"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://www.afdal-bouraima.fr/#website",
+            "url": "https://www.afdal-bouraima.fr/",
+            "name": "Afdal Bouraima",
+            "inLanguage": ["fr", "en"],
+            "about": { "@id": "https://www.afdal-bouraima.fr/#person" }
+          }
+        ]
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -23,7 +102,29 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Shown until the app loads, which replaces it: what a crawler that
+           doesn't run JavaScript (and link previews) gets to read. -->
+      <main style="max-width: 1200px; margin: 0 auto; padding: 72px 24px; font-family: Archivo, system-ui, sans-serif">
+        <h1 style="margin: 0 0 16px; font-size: 44px; line-height: 1.1">Afdal Bouraima</h1>
+        <p style="margin: 0 0 12px; font-size: 22px">
+          Développeur IA spécialisé en NLP, LLM et RAG, basé à Lyon. Disponible immédiatement pour un CDI en France.
+        </p>
+        <p style="margin: 0 0 24px; font-size: 17px; line-height: 1.6; max-width: 70ch">
+          Diplômé du Master MALIA (Machine Learning pour l'Intelligence Artificielle) de l'Université Lumière Lyon 2,
+          j'ai conçu et déployé des fonctionnalités IA en production chez ContentSide pour des clients presse :
+          classification de texte, évaluation de systèmes RAG, extraction d'information par vision-langage. Mes projets :
+          CritiScope (topic modeling des critiques Allociné), détoxification de texte multilingue, AnimeReco
+          (recommandation d'animes).
+        </p>
+        <p style="margin: 0; font-size: 17px">
+          <a href="mailto:afdalbouraima2@gmail.com">afdalbouraima2@gmail.com</a> ·
+          <a href="https://www.linkedin.com/in/afdal-bouraima-276183253">LinkedIn</a> ·
+          <a href="https://github.com/Afdal-B">GitHub</a> ·
+          <a href="https://huggingface.co/Dalfaxy">Hugging Face</a>
+        </p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
