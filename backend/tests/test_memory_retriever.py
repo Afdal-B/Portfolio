@@ -1,11 +1,6 @@
-"""Chroma adapter, driven with an in-memory client and a fake embedder — no
-disk writes, no model download."""
+"""In-memory retriever, driven with a fake embedder: no network."""
 
-import uuid
-
-import chromadb
-
-from app.adapters.outbound.rag.chroma_retriever import ChromaRetriever
+from app.adapters.outbound.rag.memory_retriever import InMemoryRetriever
 from app.domain.models import Chunk
 
 
@@ -42,14 +37,7 @@ def chunk(id_: str, text: str, label: str, category: str = "profile") -> Chunk:
 def build(knowledge_chunks, vectors):
     knowledge = FakeKnowledge(knowledge_chunks)
     embedder = FakeEmbedder(vectors)
-    retriever = ChromaRetriever(
-        knowledge=knowledge,
-        embedder=embedder,
-        client=chromadb.EphemeralClient(),
-        # Ephemeral clients share one in-process store, so each test needs
-        # its own collection namespace.
-        collection_prefix=f"test_{uuid.uuid4().hex}",
-    )
+    retriever = InMemoryRetriever(knowledge=knowledge, embedder=embedder)
     return retriever, knowledge, embedder
 
 
@@ -75,60 +63,9 @@ def test_document_is_ingested_once_per_language() -> None:
     retriever.search("q", "fr", top_k=1)
     retriever.search("q", "fr", top_k=1)
 
-    assert knowledge.calls == 1  # collection is cached after the first touch
+    assert knowledge.calls == 1  # the index is kept after the first touch
     # One batch for the document, then one per query.
     assert embedder.batches == [1, 1, 1]
-
-
-def test_section_removed_from_document_is_purged_on_ingestion() -> None:
-    """upsert never deletes — a section dropped from the markdown used to
-    stay retrievable forever."""
-    client = chromadb.EphemeralClient()
-    prefix = f"test_{uuid.uuid4().hex}"
-    vectors = {"texte a": [1.0, 0.0], "texte b": [0.0, 1.0], "q": [1.0, 0.0]}
-
-    before = ChromaRetriever(
-        knowledge=FakeKnowledge([chunk("a", "texte a", "A"), chunk("b", "texte b", "B")]),
-        embedder=FakeEmbedder(vectors),
-        client=client,
-        collection_prefix=prefix,
-    )
-    before.search("q", "fr", top_k=5)
-
-    # Next startup: section "b" has been removed from the document.
-    after = ChromaRetriever(
-        knowledge=FakeKnowledge([chunk("a", "texte a", "A")]),
-        embedder=FakeEmbedder(vectors),
-        client=client,
-        collection_prefix=prefix,
-    )
-    assert {hit.chunk.id for hit in after.search("q", "fr", top_k=5)} == {"a"}
-
-
-def test_legacy_untagged_chunks_are_purged_but_other_sources_kept() -> None:
-    client = chromadb.EphemeralClient()
-    prefix = f"test_{uuid.uuid4().hex}"
-    collection = client.get_or_create_collection(f"{prefix}_fr", metadata={"hnsw:space": "cosine"})
-    # A chunk ingested before the `source` tag existed, and a project chunk.
-    collection.upsert(
-        ids=["old-projet", "fr-admin-project-x"],
-        embeddings=[[0.9, 0.1], [0.8, 0.2]],
-        documents=["ancien projet", "projet x"],
-        metadatas=[
-            {"category": "projects", "source_label": "Ancien"},
-            {"category": "projects", "source_label": "X", "source": "admin_project"},
-        ],
-    )
-
-    retriever = ChromaRetriever(
-        knowledge=FakeKnowledge([chunk("a", "texte a", "A")]),
-        embedder=FakeEmbedder({"texte a": [1.0, 0.0], "q": [1.0, 0.0]}),
-        client=client,
-        collection_prefix=prefix,
-    )
-
-    ids = {hit.chunk.id for hit in retriever.search("q", "fr", top_k=5)}
-    assert ids == {"a", "fr-admin-project-x"}
 
 
 def test_index_and_prune_only_touch_their_own_source() -> None:
@@ -149,3 +86,12 @@ def test_index_and_prune_only_touch_their_own_source() -> None:
     # Dropping p2 from the catalog prunes only it — the document stays.
     retriever.prune("fr", "admin_project", keep_ids=["p1"])
     assert {hit.chunk.id for hit in retriever.search("q", "fr", top_k=5)} == {"doc-1", "p1"}
+
+
+def test_index_replaces_a_chunk_with_the_same_id() -> None:
+    retriever, _, _ = build([], {"v1": [1.0, 0.0], "v2": [0.0, 1.0], "q": [0.0, 1.0]})
+    retriever.index("fr", [chunk("p1", "v1", "Ancien", "projects")], "admin_project")
+    retriever.index("fr", [chunk("p1", "v2", "Nouveau", "projects")], "admin_project")
+
+    hits = retriever.search("q", "fr", top_k=5)
+    assert [(hit.chunk.id, hit.chunk.source_label) for hit in hits] == [("p1", "Nouveau")]

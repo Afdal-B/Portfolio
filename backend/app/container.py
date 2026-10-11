@@ -2,13 +2,12 @@
 adapters, and wires them together.
 
 Everything is built lazily and memoized, so importing this module costs
-nothing: in particular, no API client is created and no Chroma client is
-opened until something actually asks for the retriever."""
+nothing: in particular, no API client is created and no vector index is
+built until something actually asks for the retriever."""
 
 import os
 import secrets
 from functools import cached_property
-from pathlib import Path
 from typing import Optional
 
 from app.adapters.outbound.analytics.memory_store import InMemoryAnalyticsStore
@@ -26,10 +25,10 @@ from app.adapters.outbound.persistence.static_content_repository import (
     StaticQARepository,
     StaticSkillRepository,
 )
-from app.adapters.outbound.rag.chroma_retriever import DEFAULT_CHROMA_PATH, ChromaRetriever
 from app.adapters.outbound.rag.embedder import GeminiEmbedder
 from app.adapters.outbound.rag.embedding_cache import CachedEmbedder
 from app.adapters.outbound.rag.markdown_knowledge_repository import MarkdownKnowledgeRepository
+from app.adapters.outbound.rag.memory_retriever import InMemoryRetriever
 from app.adapters.outbound.rag.upstash_vector_cache import UpstashVectorCache
 from app.adapters.outbound.upstash import UpstashClient
 from app.config import Settings, settings as default_settings
@@ -82,7 +81,7 @@ class Container:
         generator answers, and nothing would ever query the vector store."""
         if not self.settings.gemini_api_key:
             return None
-        return ChromaRetriever(
+        return InMemoryRetriever(
             knowledge=MarkdownKnowledgeRepository(),
             embedder=CachedEmbedder(
                 GeminiEmbedder(
@@ -94,16 +93,7 @@ class Container:
                 self.settings.embedding_dimensions,
                 shared=UpstashVectorCache(self.upstash) if self.upstash else None,
             ),
-            chroma_path=self._chroma_path(),
         )
-
-    def _chroma_path(self) -> Path:
-        if self.settings.chroma_path:
-            return Path(self.settings.chroma_path)
-        # Vercel sets VERCEL=1 in its functions, where only /tmp is writable.
-        if os.environ.get("VERCEL"):
-            return Path("/tmp/chroma")
-        return DEFAULT_CHROMA_PATH
 
     @cached_property
     def primary_generator(self) -> Optional[AnswerGenerator]:

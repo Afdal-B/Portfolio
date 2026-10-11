@@ -5,7 +5,6 @@ frontend/.vite/
 
 # Python / backend
 backend/.venv/
-backend/.chroma/
 **/__pycache__/
 *.pyc
 .pytest_cache/

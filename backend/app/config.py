@@ -23,9 +23,6 @@ class Settings(BaseSettings):
     embedding_model: str = "gemini-embedding-001"
     embedding_dimensions: int = 768
 
-    # Where ChromaDB keeps its index. Unset: backend/.chroma locally, /tmp on
-    # Vercel, whose functions can only write there.
-    chroma_path: Optional[str] = None
 
     # Admin API (project editing without a redeploy). Unset = admin endpoints
     # are disabled entirely, so the feature is opt-in per deployment.

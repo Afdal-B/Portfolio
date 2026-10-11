@@ -62,7 +62,7 @@ export const copy = {
     buildSteps: [
       "Un CV en prose, découpé en passages",
       "Embeddings calculés avec l'API Gemini",
-      "Index vectoriel ChromaDB",
+      "Index vectoriel en mémoire, recherche par similarité cosinus",
       "Réponse de Gemini, à partir des seuls passages retrouvés",
       "Repli scripté si le modèle est indisponible",
     ],
@@ -154,7 +154,7 @@ export const copy = {
     buildSteps: [
       "A prose CV, split into passages",
       "Embeddings computed with the Gemini API",
-      "ChromaDB vector index",
+      "In-memory vector index, cosine similarity search",
       "Gemini answers from the retrieved passages only",
       "Scripted fallback when the model is unavailable",
     ],

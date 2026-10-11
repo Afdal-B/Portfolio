@@ -25,7 +25,7 @@ backend/app/
 │   ├── inbound/http/       # FastAPI : routes, DTO Pydantic, limite de requêtes
 │   └── outbound/
 │       ├── persistence/    # catalogue de projets (JSON), contenu statique, images
-│       ├── rag/            # documents Markdown, embeddings, ChromaDB
+│       ├── rag/            # documents Markdown, embeddings, index vectoriel
 │       └── llm/            # Gemini et répondeur scripté (même port)
 ├── config.py               # configuration (pydantic-settings)
 ├── container.py            # composition root
@@ -33,7 +33,7 @@ backend/app/
 ```
 
 Les dépendances pointent uniquement vers l'intérieur : le domaine n'importe
-ni FastAPI, ni Pydantic, ni ChromaDB, ni le SDK Gemini. La règle est vérifiée
+ni FastAPI, ni Pydantic, ni le SDK Gemini. La règle est vérifiée
 par [`tests/test_architecture.py`](backend/tests/test_architecture.py).
 
 ## L'assistant RAG
@@ -52,9 +52,11 @@ Pipeline de bout en bout, sans framework d'orchestration :
    [`content/embeddings.json`](backend/content/embeddings.json) (`make embeddings`
    après chaque modification du contenu) : une instance qui démarre indexe le
    corpus sans appeler l'API, seule la question du visiteur est vectorisée.
-4. **Index** : ChromaDB, une collection par langue, construit au démarrage
-   (ou à la première question sur Vercel) et mis à jour quand le catalogue
-   change.
+4. **Index** : un index vectoriel en mémoire, une collection par langue,
+   avec une recherche exacte par similarité cosinus. Le corpus ne compte
+   que quelques dizaines de passages : une recherche prend moins d'une
+   milliseconde, et l'index se reconstruit en un instant au démarrage à
+   partir des vecteurs pré-calculés.
 5. **Génération** : Gemini (`gemini-3.5-flash-lite`) répond en Markdown à
    partir des seuls passages retrouvés, avec la date du jour pour situer les
    expériences dans le temps.
@@ -99,8 +101,8 @@ Chaque push sur `main` redéploie les deux. Variables d'environnement du projet
 Vercel : `PORTFOLIO_GEMINI_API_KEY`, et celles d'Upstash Redis, ajoutées par
 son intégration Vercel.
 
-Le disque des fonctions est en lecture seule, sauf `/tmp` où l'index ChromaDB
-est reconstruit à chaque démarrage d'instance. L'état partagé vit donc dans
+Le disque des fonctions est en lecture seule, et l'index vectoriel est
+reconstruit en mémoire à chaque démarrage d'instance. L'état partagé vit donc dans
 Upstash Redis :
 
 - le catalogue de projets et ses images (`storage/projects.json` et

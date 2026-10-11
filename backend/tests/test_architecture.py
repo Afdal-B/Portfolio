@@ -15,7 +15,7 @@ APP = Path(__file__).resolve().parent.parent / "app"
 # clients (hashing and date handling are pure computations).
 DOMAIN_ALLOWED_ROOTS = {"typing", "dataclasses", "logging", "re", "abc", "hashlib", "datetime", "urllib", "app"}
 
-FRAMEWORKS = {"fastapi", "pydantic", "pydantic_settings", "chromadb", "google", "PIL", "httpx"}
+FRAMEWORKS = {"fastapi", "pydantic", "pydantic_settings", "google", "PIL", "httpx"}
 
 
 def imported_roots(path: Path) -> set[str]:

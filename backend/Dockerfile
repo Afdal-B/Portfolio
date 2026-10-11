@@ -23,8 +23,8 @@ COPY storage ./seed/storage
 COPY docker-entrypoint.sh ./
 
 # Writable whatever user the platform runs the container as.
-RUN mkdir -p /app/storage /app/.chroma \
-    && chmod 777 /app/storage /app/.chroma \
+RUN mkdir -p /app/storage \
+    && chmod 777 /app/storage \
     && chmod +x /app/docker-entrypoint.sh
 
 EXPOSE 8000

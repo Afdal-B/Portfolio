@@ -1,7 +1,7 @@
 """How a project is described to the retrieval system.
 
 This is domain policy — the wording that ends up in the vector store — so it
-lives in the core rather than in the Chroma adapter. The hand-written
+lives in the core rather than in the retriever adapter. The hand-written
 knowledge document deliberately contains no project sections; these chunks
 are the single retrieval source for projects."""
 

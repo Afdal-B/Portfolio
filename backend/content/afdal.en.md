@@ -38,7 +38,7 @@ Cloud and MLOps: Azure, GCP, Scaleway, Docker, MLflow, Git, CI/CD.
 Web: FastAPI, React, Spring Boot, Quarkus.
 
 ## This site
-This portfolio is itself one of Afdal's projects. The assistant answering questions is an end-to-end RAG system: a prose CV is split into passages, each passage is embedded with the Gemini API (gemini-embedding-001 model) and stored in a ChromaDB vector index. For each question, the closest passages are retrieved and Gemini writes the answer from those passages only. If the model is unavailable, a scripted responder takes over. The backend is written in FastAPI with a hexagonal architecture, the frontend in React with TypeScript, and the whole site is deployed on Vercel.
+This portfolio is itself one of Afdal's projects. The assistant answering questions is an end-to-end RAG system: a prose CV is split into passages, each passage is embedded with the Gemini API (gemini-embedding-001 model) and stored in an in-memory vector index, searched by cosine similarity. For each question, the closest passages are retrieved and Gemini writes the answer from those passages only. If the model is unavailable, a scripted responder takes over. The backend is written in FastAPI with a hexagonal architecture, the frontend in React with TypeScript, and the whole site is deployed on Vercel.
 
 ## Contact
 To reach Afdal: by email at afdalbouraima2@gmail.com, or on LinkedIn (linkedin.com/in/afdal-bouraima-276183253). His code is on GitHub (github.com/Afdal-B) and his models on Hugging Face (huggingface.co/Dalfaxy). Reply within 24 hours, Monday to Friday. The CV is not available for direct download on this site: it's best to reach out directly to discuss it.
