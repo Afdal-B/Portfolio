@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react"
 import { useAppState } from "../../context/AppStateContext"
 import { t } from "../../i18n/copy"
-import { cardStyle } from "../../styles/surfaces"
+import { cardGrid, cardStyle } from "../../styles/surfaces"
 
 /** Grey shapes standing in for a section's cards while its content loads,
  *  so the page keeps its layout instead of filling in all at once. */
@@ -32,9 +32,9 @@ export function LoadError() {
 export function ProjectsPlaceholder() {
   return (
     <Loading>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
+      <div style={cardGrid(320, 3)}>
         {[0, 1, 2].map((i) => (
-          <div key={i} style={{ ...cardStyle, flex: "1 1 320px", minWidth: 0, overflow: "hidden" }}>
+          <div key={i} style={{ ...cardStyle, minWidth: 0, overflow: "hidden" }}>
             <Bone height="auto" radius={0} style={{ aspectRatio: "16/9" }} />
             <div style={{ padding: 22, display: "flex", flexDirection: "column", gap: 12 }}>
               <Bone width="40%" height={14} />
@@ -82,9 +82,9 @@ export function SkillsPlaceholder() {
   const chips = [96, 120, 84, 110, 72, 130, 90]
   return (
     <Loading>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+      <div style={cardGrid(460, 2, 16)}>
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} style={{ ...cardStyle, flex: "1 1 460px", minWidth: 0, padding: 22, display: "flex", flexDirection: "column", gap: 14 }}>
+          <div key={i} style={{ ...cardStyle, minWidth: 0, padding: 22, display: "flex", flexDirection: "column", gap: 14 }}>
             <Bone width="35%" height={18} />
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {chips.map((width, j) => (

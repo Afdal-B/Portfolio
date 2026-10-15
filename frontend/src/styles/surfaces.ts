@@ -13,3 +13,16 @@ export const kickerStyle: React.CSSProperties = {
   textTransform: "uppercase",
   color: "var(--ac)",
 }
+
+/** A grid of equal-width cards: as many columns as fit at `minWidth`, never
+ *  more than `maxColumns`, a single column on narrow screens. Unlike a
+ *  wrapping flex row, a card left alone on the last row keeps the width of
+ *  the others instead of stretching across the page. */
+export function cardGrid(minWidth: number, maxColumns: number, gap = 20): React.CSSProperties {
+  const share = `calc((100% - ${(maxColumns - 1) * gap}px) / ${maxColumns})`
+  return {
+    display: "grid",
+    gridTemplateColumns: `repeat(auto-fill, minmax(max(min(100%, ${minWidth}px), ${share}), 1fr))`,
+    gap,
+  }
+}

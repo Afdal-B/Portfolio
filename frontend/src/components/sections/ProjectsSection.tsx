@@ -6,7 +6,7 @@ import { TechChipList } from "../tech/TechChip"
 import type { ProjectDTO } from "../../types/content"
 import { Section } from "./Section"
 import { LoadError, ProjectsPlaceholder } from "./Placeholders"
-import { cardStyle, kickerStyle } from "../../styles/surfaces"
+import { cardGrid, cardStyle, kickerStyle } from "../../styles/surfaces"
 
 /** How many stack items a card shows; the modal lists them all. */
 const CARD_TAGS = 3
@@ -31,7 +31,7 @@ function ProjectCard({ project, index }: { project: ProjectDTO; index: number })
   const hasDemo = project.url && project.url !== "#"
 
   return (
-    <article style={{ ...cardStyle, flex: "1 1 320px", minWidth: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <article style={{ ...cardStyle, minWidth: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <img
         src={mainImage(project, 960, 540)}
         alt={L.imageAlt(project.title)}
@@ -81,6 +81,12 @@ function ProjectCard({ project, index }: { project: ProjectDTO; index: number })
   )
 }
 
+/** Three columns, except for four projects: two rows of two read as a
+ *  complete set, where three plus one leaves a card on its own. */
+function projectColumns(count: number): number {
+  return count === 4 ? 2 : 3
+}
+
 export function ProjectsSection() {
   const { lang, projects, contentStatus } = useAppState()
   const L = t(lang)
@@ -91,7 +97,7 @@ export function ProjectsSection() {
       {status === "loading" && <ProjectsPlaceholder />}
       {status === "error" && <LoadError />}
       {status === "ready" && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
+        <div style={cardGrid(320, projectColumns(projects.length))}>
           {projects.map((p, i) => (
             <ProjectCard key={p.title} project={p} index={i} />
           ))}
