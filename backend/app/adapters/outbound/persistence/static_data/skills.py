@@ -113,6 +113,10 @@ TECH: dict[str, SkillEntry] = _tech(
     SkillEntry("Quarkus", icon="quarkus"),
     SkillEntry("Streamlit", icon="streamlit"),
     SkillEntry("Gradio", icon="gradio"),
+    SkillEntry("Gemini", icon="googlegemini"),
+    SkillEntry("Pydantic", icon="pydantic"),
+    SkillEntry("pytest", icon="pytest"),
+    SkillEntry("uv", icon="uv"),
 )
 
 GROUP_ORDER: list[str] = ["nlp", "ml", "cloud", "data", "lang"]
