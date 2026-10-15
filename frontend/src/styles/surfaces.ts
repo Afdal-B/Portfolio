@@ -26,3 +26,7 @@ export function cardGrid(minWidth: number, maxColumns: number, gap = 20): React.
     gap,
   }
 }
+
+/** Width of a project card in the scrolling row: about three and a half fit
+ *  on a desktop screen, so the next card peeks out and shows the row scrolls. */
+export const ROW_CARD_WIDTH = "min(340px, 85%)"

@@ -184,6 +184,12 @@ ol.text-list {
   font-size: 0.9em;
 }
 
+/* The projects row scrolls sideways: a thin scrollbar, in the theme's colours. */
+.project-row {
+  scrollbar-width: thin;
+  scrollbar-color: var(--stroke-2) transparent;
+}
+
 input::placeholder {
   color: var(--ink-3);
 }

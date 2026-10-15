@@ -40,6 +40,8 @@ export const copy = {
 
     // Projects
     projectsLead: "Des projets en ligne, testables tout de suite.",
+    prevProjects: "Projets précédents",
+    nextProjects: "Projets suivants",
     demo: "Voir la démo",
     code: "Code",
     model: "Modèle",
@@ -134,6 +136,8 @@ export const copy = {
     ],
 
     projectsLead: "Live projects you can try right away.",
+    prevProjects: "Previous projects",
+    nextProjects: "Next projects",
     demo: "Try the demo",
     code: "Code",
     model: "Model",

@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react"
 import { useAppState } from "../../context/AppStateContext"
 import { t } from "../../i18n/copy"
-import { cardGrid, cardStyle } from "../../styles/surfaces"
+import { ROW_CARD_WIDTH, cardGrid, cardStyle } from "../../styles/surfaces"
 
 /** Grey shapes standing in for a section's cards while its content loads,
  *  so the page keeps its layout instead of filling in all at once. */
@@ -32,9 +32,9 @@ export function LoadError() {
 export function ProjectsPlaceholder() {
   return (
     <Loading>
-      <div style={cardGrid(320, 3)}>
-        {[0, 1, 2].map((i) => (
-          <div key={i} style={{ ...cardStyle, minWidth: 0, overflow: "hidden" }}>
+      <div style={{ display: "flex", gap: 20, overflow: "hidden" }}>
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} style={{ ...cardStyle, flex: `0 0 ${ROW_CARD_WIDTH}`, minWidth: 0, overflow: "hidden" }}>
             <Bone height="auto" radius={0} style={{ aspectRatio: "16/9" }} />
             <div style={{ padding: 22, display: "flex", flexDirection: "column", gap: 12 }}>
               <Bone width="40%" height={14} />
