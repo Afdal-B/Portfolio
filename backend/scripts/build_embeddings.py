@@ -1,26 +1,16 @@
-"""Rebuilds content/embeddings.json: the precomputed vectors of every passage
-the assistant indexes (knowledge documents and project catalog, FR and EN).
-
-Run after editing content/afdal.*.md or storage/projects.json, then commit
-the file:  make embeddings
-
-Calls the Gemini embedding API once per passage (about 40 per language),
-batched, using PORTFOLIO_GEMINI_API_KEY from backend/.env. Passages already
-in the cache are reused, and entries no longer used are dropped."""
-
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.adapters.outbound.rag.embedder import GeminiEmbedder  # noqa: E402
-from app.adapters.outbound.rag.embedding_cache import (  # noqa: E402
+from app.adapters.outbound.rag.embedder import GeminiEmbedder
+from app.adapters.outbound.rag.embedding_cache import (
     DEFAULT_CACHE_PATH,
     cache_key,
     read_cache,
     write_cache,
 )
-from app.container import container  # noqa: E402
+from app.container import container
 
 TASK = "RETRIEVAL_DOCUMENT"
 
@@ -48,7 +38,9 @@ def main() -> None:
             vectors[cache_key(model, dimensions, TASK, text)] = vector
 
     write_cache(DEFAULT_CACHE_PATH, model, dimensions, vectors)
-    print(f"{len(texts)} passages, {len(missing)} embedded now, written to {DEFAULT_CACHE_PATH}")
+    print(
+        f"{len(texts)} passages, {len(missing)} embedded now, written to {DEFAULT_CACHE_PATH}"
+    )
 
 
 if __name__ == "__main__":
