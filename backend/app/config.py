@@ -8,7 +8,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="PORTFOLIO_", env_file=".env")
+    # extra="ignore": backend/.env also holds values for the scripts (such as
+    # PORTFOLIO_PROD_ADMIN_PASSWORD for make pull-projects). Rejecting them
+    # would stop the server, and the error message would print their value.
+    model_config = SettingsConfigDict(env_prefix="PORTFOLIO_", env_file=".env", extra="ignore")
 
     allowed_origins: list[str] = ["http://localhost:5173"]
 

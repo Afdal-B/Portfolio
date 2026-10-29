@@ -33,8 +33,8 @@ Machine Learning and Deep Learning: PyTorch, TensorFlow, Scikit-learn, XGBoost, 
 NLP and LLMs: named-entity recognition (NER), text classification, Transformers (Hugging Face), LangChain, LangGraph, fine-tuning (LoRA, QLoRA, PEFT), RAG, LLM evaluation (LLM-as-a-judge), model serving with vLLM and Ollama.
 Time series: exponential smoothing, ARIMA, SARIMA and ARIMAX, NNAR, LSTM, machine learning on lagged features (SVR, Random Forest, XGBoost).
 Computer vision: object detection with YOLO, annotation with Roboflow, vision-language models (VLMs).
-Data and databases: PySpark, Power BI, PostgreSQL, MySQL, MongoDB, Elasticsearch, vector databases (Milvus, Zilliz).
-Cloud and MLOps: Azure, GCP, Scaleway, Docker, MLflow, Git, CI/CD.
+Data and databases: PySpark, Kafka, Airflow, dbt, Power BI, PostgreSQL, MySQL, MongoDB, Elasticsearch, S3 object storage (RustFS), vector databases (Milvus, Zilliz).
+Cloud and MLOps: Azure, GCP, Scaleway, Docker, Docker Compose, MLflow, Grafana, Prometheus, Git, GitHub Actions, CI/CD, ruff.
 Web: FastAPI, React, Spring Boot, Quarkus.
 
 ## This site

@@ -171,3 +171,14 @@ def test_unknown_stack_item_has_no_icon() -> None:
     skill = StaticSkillRepository().resolve("Une techno inconnue")
     assert skill.name == "Une techno inconnue"
     assert skill.icon is None and skill.glyph is None
+
+
+def test_unknown_portfolio_variables_do_not_stop_the_settings(monkeypatch) -> None:
+    """backend/.env also holds values for the scripts; an unknown
+    PORTFOLIO_* variable must neither crash startup nor be echoed in an
+    error message (it may be a password)."""
+    from app.config import Settings
+
+    monkeypatch.setenv("PORTFOLIO_PROD_ADMIN_PASSWORD", "secret-value")
+    settings = Settings(gemini_api_key=None)
+    assert "secret-value" not in repr(settings)

@@ -2,12 +2,13 @@
 in Upstash. Driven with a dict-backed fake client, no network."""
 
 import io
+import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from app.adapters.outbound.persistence.json_project_repository import JsonProjectRepository
+from app.adapters.outbound.persistence.json_project_repository import JsonProjectRepository, project_to_dict
 from app.adapters.outbound.persistence.upstash_image_store import UpstashImageStore
 from app.adapters.outbound.persistence.upstash_project_repository import UpstashProjectRepository
 from app.adapters.outbound.rag.embedding_cache import CachedEmbedder
@@ -51,16 +52,80 @@ def png() -> bytes:
 # --- catalog -------------------------------------------------------------
 
 
-def test_catalog_falls_back_to_the_shipped_one_until_first_save() -> None:
-    repo = UpstashProjectRepository(FakeUpstash(), seed=JsonProjectRepository())
-    assert [p.id for p in repo.list_all()] == [p.id for p in JsonProjectRepository().list_all()]
+class ShippedCatalog:
+    """Stands in for storage/projects.json; `projects` can change like a push."""
+
+    def __init__(self, projects: list[Project]) -> None:
+        self.projects = projects
+
+    def list_all(self) -> list[Project]:
+        return list(self.projects)
 
 
-def test_saved_catalog_is_read_back_with_ids_assigned() -> None:
+def ids(repo) -> list[str]:
+    return [p.id for p in repo.list_all()]
+
+
+def online(*projects: Project):
+    shipped = ShippedCatalog(list(projects))
+    return UpstashProjectRepository(FakeUpstash(), seed=shipped), shipped
+
+
+def test_catalog_is_the_shipped_one_until_first_save() -> None:
     repo = UpstashProjectRepository(FakeUpstash(), seed=JsonProjectRepository())
-    saved = repo.replace_all([project("", "Détection d'objets")])
-    assert saved[0].id == "detection-d-objets"
-    assert repo.list_all() == saved
+    assert ids(repo) == [p.id for p in JsonProjectRepository().list_all()]
+
+
+def test_saving_the_repository_catalog_unchanged_stores_no_edit() -> None:
+    repo, _ = online(project("a"), project("b"))
+    repo.replace_all(repo.list_all())
+    assert json.loads(repo._client.data["pf:projects:changes"])["edited"] == {}
+
+
+def test_a_project_added_by_a_push_appears_after_online_edits() -> None:
+    repo, shipped = online(project("a"), project("b"))
+    repo.replace_all([project("b"), project("a", "Titre modifié en ligne")])  # reorder + edit
+    shipped.projects.append(project("c", "Nouveau par push"))
+    assert ids(repo) == ["b", "a", "c"]
+    assert repo.list_all()[1].title["fr"] == "Titre modifié en ligne"
+
+
+def test_an_online_edit_holds_until_the_project_changes_in_the_repository() -> None:
+    repo, shipped = online(project("a", "Version du dépôt"))
+    repo.replace_all([project("a", "Version en ligne")])
+    assert repo.list_all()[0].title["fr"] == "Version en ligne"
+
+    shipped.projects = [project("a", "Nouvelle version poussée")]
+    assert repo.list_all()[0].title["fr"] == "Nouvelle version poussée"
+
+
+def test_an_online_deletion_holds_until_the_project_changes_in_the_repository() -> None:
+    repo, shipped = online(project("a"), project("b"))
+    repo.replace_all([project("a")])
+    assert ids(repo) == ["a"]
+
+    shipped.projects = [project("a"), project("b", "Modifié puis poussé")]
+    assert ids(repo) == ["a", "b"]
+
+
+def test_a_project_created_online_gets_its_own_id_and_stays_online() -> None:
+    repo, shipped = online(project("detection-d-objets"))
+    repo.replace_all([project("detection-d-objets"), project("", "Détection d'objets")])
+    created = repo.list_all()[1]
+    assert created.id != "detection-d-objets"  # never shadows a repository project
+    assert created.title["fr"] == "Détection d'objets"
+
+
+def test_the_legacy_full_copy_is_converted_into_online_changes() -> None:
+    shipped = ShippedCatalog([project("a"), project("b")])
+    client = FakeUpstash()
+    legacy = [project_to_dict(p) for p in (project("a"), project("online-only", "Créé en ligne"))]
+    client.data["pf:projects"] = json.dumps(legacy)
+
+    repo = UpstashProjectRepository(client, seed=shipped)
+    assert ids(repo) == ["a", "online-only"]  # "b" was deleted online
+    shipped.projects.append(project("c"))  # and pushes still show
+    assert ids(repo) == ["a", "online-only", "c"]
 
 
 # --- images --------------------------------------------------------------

@@ -1,4 +1,4 @@
-.PHONY: install install-frontend install-backend dev-frontend dev-backend embeddings test test-frontend test-backend
+.PHONY: install install-frontend install-backend dev-frontend dev-backend embeddings pull-projects test test-frontend test-backend
 
 install: install-frontend install-backend
 
@@ -20,6 +20,11 @@ dev-backend:
 # the passages' embeddings, then commit backend/content/embeddings.json.
 embeddings:
 	cd backend && poetry run python scripts/build_embeddings.py
+
+# Before editing projects locally: copy the online catalog (including admin
+# edits) and its images into the repository, so a push starts from it.
+pull-projects:
+	cd backend && poetry run python scripts/pull_projects.py
 
 test: test-backend test-frontend
 

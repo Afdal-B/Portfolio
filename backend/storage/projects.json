@@ -109,5 +109,82 @@
       "en": "ALS collaborative filtering on MyAnimeList, instant personal recommendations, full application deployed on Azure."
     },
     "code_url": "https://github.com/Afdal-B/anime-recommendations"
+  },
+  {
+    "id": "agent-d-enquete-anti-blanchiment-lcb-ft",
+    "meta": {
+      "fr": "IA agentique · Conformité",
+      "en": "Agentic AI · Compliance"
+    },
+    "title": {
+      "fr": "Agent d'enquête anti-blanchiment (LCB-FT)",
+      "en": "Anti-money laundering investigation agent (AML/CFT)"
+    },
+    "result": {
+      "fr": "Le score et l'issue (classer, escalader, proposer une déclaration de soupçon soumise à un humain) ne reposent que sur les constats validés : une hallucination ne peut pas, à elle seule, faire déclarer un client. Démo en ligne sur des données synthétiques.",
+      "en": "The score and the outcome (close, escalate, or propose a suspicious activity report for human review) rely only on validated findings: a hallucination alone can never get a client reported. Live demo on synthetic data."
+    },
+    "problem": {
+      "fr": "Dans une banque, les règles de détection du blanchiment lèvent de nombreuses alertes, dont une majorité de faux positifs, et chacune mobilise un analyste.",
+      "en": "In a bank, money laundering detection rules raise many alerts, most of them false positives, and each one takes up an analyst's time."
+    },
+    "method": {
+      "fr": "Agent LangGraph (Gemini) qui mène l'enquête : il interroge l'historique du client, son profil déclaré et les contreparties, puis rend un rapport structuré où chaque signal suspect est appuyé par des identifiants de transactions. L'agent constate, le code décide : chaque preuve citée est revérifiée contre les données, et une transaction inventée, appartenant à un autre client ou qui ne démontre pas le signal est écartée.",
+      "en": "A LangGraph agent (Gemini) runs the investigation: it queries the client's history, declared profile and counterparties, then returns a structured report where every suspicious signal is backed by transaction IDs. The agent observes, the code decides: every piece of evidence is checked against the data, and a transaction that is made up, belongs to another client or doesn't show the signal is discarded."
+    },
+    "stack": "LangGraph · Gemini · Pydantic · Python · Streamlit · pytest · uv",
+    "metrics": {
+      "fr": "Données synthétiques reconstruites à partir d'un cas réel du rapport Tracfin 2024-2025 (détournement de subventions via une association), plus un client légitime qui déclenche la même alerte · sur 5 exécutions par alerte : aucun faux négatif, aucun faux positif, aucune preuve inventée.",
+      "en": "Synthetic data rebuilt from a real case in the Tracfin 2024-2025 report (subsidy embezzlement through a non-profit), plus a legitimate client who triggers the same alert · over 5 runs per alert: no false negatives, no false positives, no fabricated evidence."
+    },
+    "url": "https://aml-agents.streamlit.app/",
+    "image_url": "/api/uploads/2230c282423a48c58dabfc9f7a1edbba.webp",
+    "screenshots": [],
+    "image_seed": "",
+    "summary": {
+      "fr": "Un agent LLM qui instruit des alertes anti-blanchiment, et un code déterministe qui vérifie ses preuves avant toute décision.",
+      "en": "An LLM agent that investigates anti-money laundering alerts, and deterministic code that checks its evidence before any decision."
+    },
+    "code_url": "https://github.com/Afdal-B/aml-agents"
+  },
+  {
+    "id": "stratum",
+    "meta": {
+      "fr": "Data Engineering · Projet personnel",
+      "en": "Data engineering · Personal project"
+    },
+    "title": {
+      "fr": "Stratum : plateforme data de bout en bout",
+      "en": "Stratum: end-to-end data platform"
+    },
+    "result": {
+      "fr": "Les données sont restituées dans Power BI (ventes, clients, FinOps) et supervisées dans Grafana sur Prometheus, avec un rapport de chaque run et un coût estimé par pipeline. Un générateur produit du trafic réaliste, avec une part de données corrompues pour éprouver la qualité. Aucun secret versionné, rôles en lecture seule pour Power BI et Grafana, CI GitHub Actions au vert.",
+      "en": "The data is served in Power BI (sales, customers, FinOps) and monitored in Grafana on Prometheus, with a report for every run and an estimated cost per pipeline. A generator produces realistic traffic, including corrupted data to exercise quality checks. No secrets in the repository, read-only roles for Power BI and Grafana, GitHub Actions CI passing."
+    },
+    "problem": {
+      "fr": "Construire, pour OmniFlow, une boutique en ligne fictive, une plateforme qui fiabilise et met à disposition ses données transactionnelles et de navigation, de l'ingestion aux tableaux de bord. Projet vitrine sur données simulées.",
+      "en": "Building, for OmniFlow, a fictional online shop, a platform that makes its transactional and browsing data reliable and available, from ingestion to dashboards. A showcase project on simulated data."
+    },
+    "method": {
+      "fr": "Ingestion incrémentale de la base PostgreSQL (high-water mark) et streaming Kafka (Structured Streaming, fenêtres de 5 min avec watermark). Contrôles qualité dans Spark : les lignes invalides partent en dead letter queue avec la règle violée. Historisation dans un data lake S3, puis modélisation dbt en Medallion (staging, intermediate, marts). Pipelines déclaratifs : un fichier YAML par pipeline, validé par Pydantic, dont Airflow génère les DAGs. Idempotence : rejouer un run réécrit le même lot, chargé en une seule transaction.",
+      "en": "Incremental ingestion from the PostgreSQL database (high-water mark) and Kafka streaming (Structured Streaming, 5-minute windows with watermark). Quality checks in Spark: invalid rows go to a dead letter queue with the rule they broke. Storage in an S3 data lake, then dbt modelling following the Medallion architecture (staging, intermediate, marts). Declarative pipelines: one YAML file per pipeline, validated by Pydantic, from which Airflow generates the DAGs. Idempotence: replaying a run rewrites the same batch, loaded in a single transaction."
+    },
+    "stack": "Kafka · PySpark · Airflow · dbt · PostgreSQL · S3 (RustFS) · Power BI · Grafana · Prometheus · Docker Compose · Python · uv · ruff · GitHub Actions",
+    "metrics": {
+      "fr": "5 pipelines d'ingestion (4 tables PostgreSQL et 1 topic Kafka) · 9 tables dans la couche marts · 79 tests dbt, dont un test unitaire de sessionisation · 62 tests unitaires Python · rapport Power BI de 3 pages, 35 mesures DAX · 18 services Docker Compose.",
+      "en": "5 ingestion pipelines (4 PostgreSQL tables and 1 Kafka topic) · 9 tables in the marts layer · 79 dbt tests, including a sessionisation unit test · 62 Python unit tests · 3-page Power BI report, 35 DAX measures · 18 Docker Compose services."
+    },
+    "url": "#",
+    "image_url": "/api/uploads/8e74573d095948199522b29c6bf797c0.webp",
+    "screenshots": [
+      "/api/uploads/c82965384c10443781ed58de0b05e59c.webp",
+      "/api/uploads/b3c0d8deb1e045de9d19a7ba9919512b.webp"
+    ],
+    "image_seed": "afdal-6",
+    "summary": {
+      "fr": "Plateforme data de bout en bout pour un e-commerce fictif, de l'ingestion temps réel aux tableaux de bord métier et FinOps.",
+      "en": "End-to-end data platform for a fictional e-commerce shop, from real-time ingestion to business and FinOps dashboards."
+    },
+    "code_url": "https://github.com/Afdal-B/omniflow-data-platform"
   }
 ]

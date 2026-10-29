@@ -98,6 +98,14 @@ TECH: dict[str, SkillEntry] = _tech(
     SkillEntry("Milvus", icon="milvus"),
     SkillEntry("Elasticsearch", icon="elasticsearch"),
     SkillEntry("Power BI", glyph="chart"),
+    SkillEntry("Kafka", icon="apachekafka"),
+    SkillEntry("Airflow", icon="apacheairflow"),
+    # No dbt logo in Simple Icons or Devicon: the layers glyph fits a
+    # modelling tool built around staging, intermediate and marts layers.
+    SkillEntry("dbt", glyph="layers"),
+    # "S3 (RustFS)" in a project stack resolves here (the precision in
+    # parentheses is ignored); RustFS is the S3-compatible store used.
+    SkillEntry("S3", icon="rustfs"),
     # Cloud and MLOps
     SkillEntry("Azure", icon="azure"),
     SkillEntry("GCP", icon="googlecloud"),
@@ -106,6 +114,11 @@ TECH: dict[str, SkillEntry] = _tech(
     SkillEntry("MLflow", icon="mlflow"),
     SkillEntry("Git", icon="git"),
     SkillEntry("CI/CD", glyph="flow"),
+    SkillEntry("Docker Compose", icon="docker"),
+    SkillEntry("GitHub Actions", icon="githubactions"),
+    SkillEntry("Grafana", icon="grafana"),
+    SkillEntry("Prometheus", icon="prometheus"),
+    SkillEntry("ruff", icon="ruff"),
     # Web
     SkillEntry("FastAPI", icon="fastapi"),
     SkillEntry("React", icon="react"),
@@ -143,12 +156,36 @@ GROUPS: dict[str, SkillGroup] = {
     "cloud": SkillGroup(
         id="cloud",
         title={"fr": "Cloud et MLOps", "en": "Cloud & MLOps"},
-        skills=["Azure", "GCP", "Scaleway", "Docker", "MLflow", "Git", "CI/CD"],
+        skills=[
+            "Azure",
+            "GCP",
+            "Scaleway",
+            "Docker",
+            "Docker Compose",
+            "MLflow",
+            "Grafana",
+            "Prometheus",
+            "Git",
+            "GitHub Actions",
+            "CI/CD",
+            "ruff",
+        ],
     ),
     "data": SkillGroup(
         id="data",
         title={"fr": "Data", "en": "Data"},
-        skills=["PySpark", "PostgreSQL", "MySQL", "MongoDB", "Bases vectorielles (Milvus / Zilliz)", "Power BI"],
+        skills=[
+            "PySpark",
+            "Kafka",
+            "Airflow",
+            "dbt",
+            "PostgreSQL",
+            "MySQL",
+            "MongoDB",
+            "S3",
+            "Bases vectorielles (Milvus / Zilliz)",
+            "Power BI",
+        ],
     ),
     "lang": SkillGroup(
         id="lang",
