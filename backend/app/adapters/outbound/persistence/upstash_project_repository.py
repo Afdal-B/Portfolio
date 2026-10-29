@@ -32,6 +32,10 @@ from app.domain.ports import ProjectRepository
 KEY = "pf:projects:changes"
 # Earlier format: the whole catalog. Converted to changes on first read.
 LEGACY_KEY = "pf:projects"
+# Changes written without a version came from a first conversion of the
+# legacy copy that also turned repository projects missing from it into
+# deletions, hiding projects pushed after the copy. They are rebuilt.
+VERSION = 2
 
 
 def fingerprint(project: Project) -> str:
@@ -59,16 +63,20 @@ class UpstashProjectRepository:
 
     def _changes(self, shipped: list[Project]) -> Optional[dict[str, Any]]:
         raw = self._client.get(KEY)
-        if raw is not None:
-            return json.loads(raw)
+        changes = json.loads(raw) if raw is not None else None
+        if changes is not None and changes.get("version") == VERSION:
+            return changes
         legacy = self._client.get(LEGACY_KEY)
         if legacy is None:
-            return None
-        # The legacy key held the catalog as last saved online: whatever
-        # differs from the repository becomes an online change.
-        changes = _diff(shipped, [project_from_dict(item) for item in json.loads(legacy)])
-        self._client.set(KEY, json.dumps(changes, ensure_ascii=False))
-        return changes
+            return changes
+        # The legacy key held the catalog as last saved online: its edits and
+        # order become online changes. Not its absences: a repository project
+        # missing from it may just have been pushed after it was saved, so a
+        # conversion never hides one.
+        converted = _diff(shipped, [project_from_dict(item) for item in json.loads(legacy)])
+        converted["deleted"] = {}
+        self._client.set(KEY, json.dumps(converted, ensure_ascii=False))
+        return converted
 
 
 def _diff(shipped: Sequence[Project], wanted: Sequence[Project]) -> dict[str, Any]:
@@ -85,7 +93,7 @@ def _diff(shipped: Sequence[Project], wanted: Sequence[Project]) -> dict[str, An
             "base": fingerprint(base) if base is not None else None,
         }
     deleted = {p.id: fingerprint(p) for p in shipped if p.id not in wanted_ids}
-    return {"edited": edited, "deleted": deleted, "order": [p.id for p in wanted]}
+    return {"version": VERSION, "edited": edited, "deleted": deleted, "order": [p.id for p in wanted]}
 
 
 def _merge(shipped: Sequence[Project], changes: dict[str, Any]) -> list[Project]:

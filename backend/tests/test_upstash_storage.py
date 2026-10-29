@@ -123,9 +123,11 @@ def test_the_legacy_full_copy_is_converted_into_online_changes() -> None:
     client.data["pf:projects"] = json.dumps(legacy)
 
     repo = UpstashProjectRepository(client, seed=shipped)
-    assert ids(repo) == ["a", "online-only"]  # "b" was deleted online
+    # "b", absent from the copy, still shows: the copy can't prove it was
+    # deleted online rather than pushed later.
+    assert ids(repo) == ["a", "online-only", "b"]
     shipped.projects.append(project("c"))  # and pushes still show
-    assert ids(repo) == ["a", "online-only", "c"]
+    assert ids(repo) == ["a", "online-only", "b", "c"]
 
 
 # --- images --------------------------------------------------------------
@@ -233,3 +235,28 @@ def test_catalog_is_editable_on_vercel_once_upstash_is_configured(offline_contai
     offline_container.settings.upstash_redis_rest_token = "token"
     offline_container.__dict__.pop("upstash", None)
     assert offline_container.projects_editable is True
+
+
+def test_a_project_pushed_after_the_legacy_copy_is_not_taken_for_a_deletion() -> None:
+    """Production case: the legacy full copy predates a project added by push.
+    The copy can't tell "deleted online" from "added to the repository
+    since", so converting it must never hide a repository project."""
+    shipped = ShippedCatalog([project("a"), project("pushed-after")])
+    client = FakeUpstash()
+    client.data["pf:projects"] = json.dumps([project_to_dict(p) for p in (project("a"), project("online-only"))])
+
+    assert ids(UpstashProjectRepository(client, seed=shipped)) == ["a", "online-only", "pushed-after"]
+
+
+def test_changes_converted_by_the_first_version_are_converted_again() -> None:
+    """The first conversion stored such a project as deleted. Those changes
+    carry no version, so they are rebuilt from the legacy copy."""
+    shipped = ShippedCatalog([project("a"), project("pushed-after")])
+    client = FakeUpstash()
+    client.data["pf:projects"] = json.dumps([project_to_dict(project("a"))])
+    from app.adapters.outbound.persistence.upstash_project_repository import fingerprint
+
+    client.data["pf:projects:changes"] = json.dumps(
+        {"edited": {}, "deleted": {"pushed-after": fingerprint(project("pushed-after"))}, "order": ["a"]}
+    )
+    assert ids(UpstashProjectRepository(client, seed=shipped)) == ["a", "pushed-after"]
